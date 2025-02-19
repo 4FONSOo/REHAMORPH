@@ -3353,8 +3353,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1372762280}
   - component: {fileID: 1372762281}
+  - component: {fileID: 1372762282}
   m_Layer: 0
-  m_Name: ScriptDB
+  m_Name: ScriptRegister
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3396,6 +3397,25 @@ MonoBehaviour:
   loginEmailInput: {fileID: 1500526847}
   loginPasswordInput: {fileID: 560091166}
   feedbackText: {fileID: 194628896}
+--- !u!114 &1372762282
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1372762279}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b7d7a0a10748bbb43846bd529477a2e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inputFields:
+  - {fileID: 1512236109}
+  - {fileID: 1598120115}
+  - {fileID: 1935348015}
+  - {fileID: 1256210661}
+  - {fileID: 1500526847}
+  - {fileID: 560091166}
 --- !u!1 &1373457902
 GameObject:
   m_ObjectHideFlags: 0
