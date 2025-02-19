@@ -62,7 +62,7 @@ public class BlinkingCursorMultiple : MonoBehaviour
     {
         while (field.isBlinking)
         {
-            field.placeholder.text = "|";  // Exibe o cursor
+            field.placeholder.text = "";  // Exibe o cursor
             yield return new WaitForSeconds(0.5f); // Aguarda 0.5 segundos
 
             field.placeholder.text = "";  // Esconde o cursor

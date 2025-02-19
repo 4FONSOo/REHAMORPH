@@ -3438,13 +3438,13 @@ MonoBehaviour:
     placeholder: {fileID: 840018483}
     defaultText: Insere o teu peso (kg)...
     isBlinking: 0
-  - inputField: {fileID: 1256210661}
-    placeholder: {fileID: 1332342850}
-    defaultText: Insere a tua altura (cm)...
-    isBlinking: 0
   - inputField: {fileID: 1935348015}
     placeholder: {fileID: 2073638477}
     defaultText: Insere a tua idade...
+    isBlinking: 0
+  - inputField: {fileID: 1256210661}
+    placeholder: {fileID: 1332342850}
+    defaultText: Insere a tua altura (cm)...
     isBlinking: 0
   - inputField: {fileID: 1500526847}
     placeholder: {fileID: 1565388087}

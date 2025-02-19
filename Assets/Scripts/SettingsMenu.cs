@@ -7,31 +7,12 @@ using TMPro;
 
 public class ScriptMenu : MonoBehaviour
 {
-    public AudioMixer audioMixer; // Mixer de áudio
     public TMP_Dropdown ResolutionDropdown;
     public TMP_Dropdown QualityDropdown; // Dropdown para qualidade
-    public Slider VolumeSlider; // Slider para volume
-    public TMP_Text muteButtonText; // Referência ao texto do botão de mute
-
-    private bool isMuted = false; // Estado do mute
     private Resolution[] resolutions;
 
     void Start()
     {
-        // Configurar slider de volume
-        if (VolumeSlider != null)
-        {
-            float currentVolume;
-            if (audioMixer.GetFloat("Volume", out currentVolume))
-            {
-                VolumeSlider.value = currentVolume;
-            }
-        }
-        else
-        {
-            Debug.LogError("Slider de volume não foi atribuído!");
-        }
-
         // Configurar resoluções
         if (ResolutionDropdown == null)
         {
@@ -85,18 +66,6 @@ public class ScriptMenu : MonoBehaviour
         Screen.SetResolution(resolution.width, resolution.height, Screen.fullScreen);
     }
 
-    public void SetVolume(float volume)
-    {
-        if (audioMixer != null)
-        {
-            audioMixer.SetFloat("Volume", volume);
-        }
-        else
-        {
-            Debug.LogError("AudioMixer não foi atribuído!");
-        }
-    }
-
     public void SetQuality(int qualityIndex)
     {
         QualitySettings.SetQualityLevel(qualityIndex);
@@ -105,27 +74,5 @@ public class ScriptMenu : MonoBehaviour
     public void SetFullScreen(bool isFullScreen)
     {
         Screen.fullScreen = isFullScreen;
-    }
-
-    // Função para ativar/desativar mute
-    public void ToggleMute()
-    {
-        isMuted = !isMuted;
-
-        if (isMuted)
-        {
-            audioMixer.SetFloat("Volume", -80f); // Volume mínimo (silêncio)
-            if (muteButtonText != null)
-                muteButtonText.text = "Unmute"; // Atualiza o texto do botão
-        }
-        else
-        {
-            float volume = (VolumeSlider != null) ? VolumeSlider.value : 0; // Obtém o volume do slider
-            audioMixer.SetFloat("Volume", volume);
-            if (muteButtonText != null)
-                muteButtonText.text = "Mute"; // Atualiza o texto do botão
-        }
-
-        Debug.Log("Mute: " + isMuted);
     }
 }
