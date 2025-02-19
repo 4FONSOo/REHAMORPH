@@ -3354,6 +3354,7 @@ GameObject:
   - component: {fileID: 1372762280}
   - component: {fileID: 1372762281}
   - component: {fileID: 1372762282}
+  - component: {fileID: 1372762283}
   m_Layer: 0
   m_Name: ScriptRegister
   m_TagString: Untagged
@@ -3416,6 +3417,43 @@ MonoBehaviour:
   - {fileID: 1256210661}
   - {fileID: 1500526847}
   - {fileID: 560091166}
+--- !u!114 &1372762283
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1372762279}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a91aa011c0689c64cb0cfd3b892bf8c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inputFields:
+  - inputField: {fileID: 1512236109}
+    placeholder: {fileID: 583270239}
+    defaultText: Insere o teu nome...
+    isBlinking: 0
+  - inputField: {fileID: 1598120115}
+    placeholder: {fileID: 840018483}
+    defaultText: Insere o teu peso (kg)...
+    isBlinking: 0
+  - inputField: {fileID: 1256210661}
+    placeholder: {fileID: 1332342850}
+    defaultText: Insere a tua altura (cm)...
+    isBlinking: 0
+  - inputField: {fileID: 1935348015}
+    placeholder: {fileID: 2073638477}
+    defaultText: Insere a tua idade...
+    isBlinking: 0
+  - inputField: {fileID: 1500526847}
+    placeholder: {fileID: 1565388087}
+    defaultText: Insere o teu e-mail...
+    isBlinking: 0
+  - inputField: {fileID: 560091166}
+    placeholder: {fileID: 401727260}
+    defaultText: Insere a tua palavra-passe...
+    isBlinking: 0
 --- !u!1 &1373457902
 GameObject:
   m_ObjectHideFlags: 0
@@ -4677,8 +4715,8 @@ RectTransform:
   - {fileID: 1055573860}
   - {fileID: 1512236108}
   - {fileID: 1598120114}
-  - {fileID: 1256210660}
   - {fileID: 1935348014}
+  - {fileID: 1256210660}
   - {fileID: 1500526846}
   - {fileID: 560091165}
   - {fileID: 194628898}

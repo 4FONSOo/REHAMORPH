@@ -1412,8 +1412,9 @@ GameObject:
   - component: {fileID: 755524623}
   - component: {fileID: 755524622}
   - component: {fileID: 755524624}
+  - component: {fileID: 755524625}
   m_Layer: 0
-  m_Name: ScriptDB
+  m_Name: ScriptLogin
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1470,6 +1471,27 @@ MonoBehaviour:
   inputFields:
   - {fileID: 930575783}
   - {fileID: 173895513}
+--- !u!114 &755524625
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 755524621}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a91aa011c0689c64cb0cfd3b892bf8c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inputFields:
+  - inputField: {fileID: 930575783}
+    placeholder: {fileID: 1646842675}
+    defaultText: Insere o teu e-mail...
+    isBlinking: 0
+  - inputField: {fileID: 173895513}
+    placeholder: {fileID: 483940320}
+    defaultText: Insere a tua palavra-passe...
+    isBlinking: 0
 --- !u!1 &846227663
 GameObject:
   m_ObjectHideFlags: 0
@@ -2390,7 +2412,7 @@ GameObject:
   - component: {fileID: 1646842675}
   - component: {fileID: 1646842674}
   m_Layer: 5
-  m_Name: Placeholder
+  m_Name: PlaceholderEmail
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
