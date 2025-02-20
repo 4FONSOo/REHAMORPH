@@ -26,7 +26,7 @@ public class game_dataScript : MonoBehaviour
 
     void Start()
     {
-        dbPath = Application.persistentDataPath + "/game_data.db";
+        dbPath = "C://Users//afons//REHAMORPH---MENUS-Work/game_data.db";
         Debug.Log("📂 Caminho da base de dados: " + dbPath);
 
         if (!File.Exists(dbPath))

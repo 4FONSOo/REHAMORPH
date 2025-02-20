@@ -1033,7 +1033,7 @@ GameObject:
   - component: {fileID: 611427274}
   - component: {fileID: 611427273}
   m_Layer: 0
-  m_Name: ScriptDB
+  m_Name: ScriptMenuLogin
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
