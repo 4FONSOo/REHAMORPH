@@ -27,30 +27,22 @@ public class game_dataScript : MonoBehaviour
     void Start()
     {
         dbPath = "C://Users//afons//REHAMORPH---MENUS-Work/game_data.db";
-        Debug.Log("📂 Caminho da base de dados: " + dbPath);
+        Debug.Log("Caminho da base de dados: " + dbPath);
 
         if (!File.Exists(dbPath))
         {
-            Debug.LogWarning("🚨 Base de dados não encontrada! Certifica-te de que estás a apontar para o ficheiro correto.");
+            Debug.LogWarning("Base de dados não encontrada! Certifica-te de que estás a apontar para o ficheiro correto.");
         }
         else
         {
-            Debug.Log("✅ Base de dados encontrada!");
+            Debug.Log("Base de dados encontrada!");
         }
-
-        // Verifica se há um usuário autenticado para login automático
-        /*if (PlayerPrefs.HasKey("loggedInUser"))
-        {
-            string loggedInEmail = PlayerPrefs.GetString("loggedInUser");
-            Debug.Log("🔐 Usuário autenticado detectado: " + loggedInEmail);
-            SceneManager.LoadScene(4); // Avança automaticamente para a cena do jogo
-        }*/
     }
-
     public void RegisterUser()
     {
-        Debug.Log("🔵 Entrou no RegisterUser()");
+        Debug.Log("Entrou no RegisterUser()");
 
+        // Verifica se algum campo está vazio
         if (string.IsNullOrWhiteSpace(nomeInput.text) ||
             string.IsNullOrWhiteSpace(idadeInput.text) ||
             string.IsNullOrWhiteSpace(pesoInput.text) ||
@@ -58,91 +50,110 @@ public class game_dataScript : MonoBehaviour
             string.IsNullOrWhiteSpace(emailInput.text) ||
             string.IsNullOrWhiteSpace(passwordInput.text))
         {
-            ShowFeedback("❌ Todos os campos são obrigatórios!", false);
-            SceneManager.LoadScene(3);
-            return;
-        }
-
-        if (!int.TryParse(idadeInput.text, out int idade) ||
-            !float.TryParse(pesoInput.text, out float peso) ||
-            !float.TryParse(alturaInput.text, out float altura))
-        {
-            ShowFeedback("❌ Idade, Peso e Altura devem ser números!", false);
-            return;
+            ShowFeedback("Todos os campos são obrigatórios!", false);
+            return; // Para aqui! NÃO CONTINUA.
         }
 
         string passwordHash = HashPassword(passwordInput.text);
         string dbName = "URI=file:" + dbPath;
+        bool registoSucesso = false; // Variável para controlar se o registo foi bem-sucedido
 
-        Debug.Log("🟢 Tentando conectar à base de dados...");
+        Debug.Log("Tentando conectar à base de dados...");
         using (var connection = new SqliteConnection(dbName))
         {
             try
             {
                 connection.Open();
-                Debug.Log("✅ Conexão estabelecida com sucesso!");
+                Debug.Log("Conexão estabelecida com sucesso!");
 
-                // Verifica se o e-mail já existe
+                // Verifica se o e-mail já está registado
                 using (var checkCommand = connection.CreateCommand())
                 {
                     checkCommand.CommandText = "SELECT COUNT(*) FROM player WHERE email = @email";
                     checkCommand.Parameters.AddWithValue("@email", emailInput.text);
                     int count = System.Convert.ToInt32(checkCommand.ExecuteScalar());
-                    Debug.Log("🔍 Usuários com este email: " + count);
 
                     if (count > 0)
                     {
-                        ShowFeedback("❌ Este e-mail já está cadastrado!", false);
-                        return;
+                        ShowFeedback("Este e-mail já está registado!", false);
+                        return; // Para aqui! NÃO CONTINUA.
                     }
                 }
 
-                // Insere os dados do novo usuário
+                // Insere os dados na base de dados
                 using (var command = connection.CreateCommand())
                 {
-                    Debug.Log("🚀 Executando o INSERT na base de dados...");
                     command.CommandText = @"INSERT INTO player (nome, idade, peso, altura, email, password_hash) 
-                                            VALUES (@nome, @idade, @peso, @altura, @email, @password_hash);";
+                                        VALUES (@nome, @idade, @peso, @altura, @email, @password_hash);";
                     command.Parameters.AddWithValue("@nome", nomeInput.text);
-                    command.Parameters.AddWithValue("@idade", idade);
-                    command.Parameters.AddWithValue("@peso", peso);
-                    command.Parameters.AddWithValue("@altura", altura);
+                    command.Parameters.AddWithValue("@idade", idadeInput.text);
+                    command.Parameters.AddWithValue("@peso", pesoInput.text);
+                    command.Parameters.AddWithValue("@altura", alturaInput.text);
                     command.Parameters.AddWithValue("@email", emailInput.text);
                     command.Parameters.AddWithValue("@password_hash", passwordHash);
 
                     int rowsAffected = command.ExecuteNonQuery();
-                    Debug.Log("🟢 Linhas afetadas pelo INSERT: " + rowsAffected);
 
                     if (rowsAffected > 0)
                     {
-                        ShowFeedback("✅ Conta criada com sucesso!", true);
+                        ShowFeedback("Conta criada com sucesso!", true);
+                        registoSucesso = true; // Define que o registo foi bem-sucedido
+
+                        // Apenas limpa os campos após um registo bem-sucedido
+                        nomeInput.text = "";
+                        idadeInput.text = "";
+                        pesoInput.text = "";
+                        alturaInput.text = "";
+                        emailInput.text = "";
+                        passwordInput.text = "";
                     }
                     else
                     {
-                        ShowFeedback("❌ Erro ao inserir dados!", false);
+                        ShowFeedback("Erro ao inserir dados!", false);
+                        return; // Para aqui! NÃO CONTINUA.
                     }
                 }
             }
             catch (System.Exception e)
             {
-                Debug.LogError("❌ ERRO AO INSERIR: " + e.Message);
-                ShowFeedback("❌ Erro ao inserir dados!", false);
+                Debug.LogError("ERRO AO INSERIR: " + e.Message);
+                ShowFeedback("Erro ao inserir dados!", false);
+                return; // Para aqui! NÃO CONTINUA.
             }
             finally
             {
                 connection.Close();
-                Debug.Log("🔴 Conexão com a BD fechada.");
+                Debug.Log("Conexão com a BD fechada.");
             }
+        }
+
+        // Apenas avança para a tela de login se o registo foi bem-sucedido
+        if (registoSucesso)
+        {
+            SceneManager.LoadScene(2);
         }
     }
 
+
     public void LoginUser()
     {
-        Debug.Log("🔵 Entrou no LoginUser()");
+        Debug.Log("Entrou no LoginUser()");
 
-        if (string.IsNullOrWhiteSpace(loginEmailInput.text) || string.IsNullOrWhiteSpace(loginPasswordInput.text))
+        if (string.IsNullOrWhiteSpace(loginEmailInput.text) && string.IsNullOrWhiteSpace(loginPasswordInput.text))
         {
-            ShowFeedback("❌ Preencha e-mail e senha!", false);
+            ShowFeedback("Preencha o e-mail e a senha!", false);
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(loginEmailInput.text))
+        {
+            ShowFeedback("Preencha o e-mail!", false);
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(loginPasswordInput.text))
+        {
+            ShowFeedback("Preencha a senha!", false);
             return;
         }
 
@@ -153,7 +164,7 @@ public class game_dataScript : MonoBehaviour
             try
             {
                 connection.Open();
-                Debug.Log("🟢 Conexão com a BD aberta para login.");
+                Debug.Log("Conexão com a BD aberta para login.");
 
                 using (var command = connection.CreateCommand())
                 {
@@ -167,58 +178,55 @@ public class game_dataScript : MonoBehaviour
                             string storedHash = reader["password_hash"].ToString();
                             string enteredHash = HashPassword(loginPasswordInput.text);
 
-                            if (storedHash == enteredHash) // ✅ Senha correta
+                            if (storedHash == enteredHash)
                             {
-                                Debug.Log("✅ Login bem-sucedido para: " + loginEmailInput.text);
-                                ShowFeedback("✅ Login bem-sucedido!", true);
-
+                                Debug.Log("Login bem-sucedido para: " + loginEmailInput.text);
+                                ShowFeedback("Login bem-sucedido!", true);
                                 PlayerPrefs.SetString("loggedInUser", loginEmailInput.text);
-
-                                // 🔥 AGORA SIM, AVANÇA PARA A PRÓXIMA CENA
                                 SceneManager.LoadScene(4);
                             }
-                            else // ❌ Senha incorreta
+                            else
                             {
-                                Debug.LogWarning("❌ Senha incorreta para o email: " + loginEmailInput.text);
-                                ShowFeedback("❌ Senha incorreta!", false);
-                                return; // 🔥 NÃO AVANÇA
+                                Debug.LogWarning("Senha incorreta para o email: " + loginEmailInput.text);
+                                ShowFeedback("Senha incorreta!", false);
+                                return;
                             }
                         }
-                        else // ❌ Conta não encontrada
+                        else
                         {
-                            Debug.LogWarning("❌ Conta não encontrada para o email: " + loginEmailInput.text);
-                            ShowFeedback("❌ Conta não encontrada!", false);
-                            return; // 🔥 NÃO AVANÇA
+                            Debug.LogWarning("Conta não encontrada para o email: " + loginEmailInput.text);
+                            ShowFeedback("Conta não encontrada!", false);
+                            return;
                         }
                     }
                 }
             }
             catch (System.Exception e)
             {
-                Debug.LogError("❌ Erro ao tentar login: " + e.Message);
-                ShowFeedback("❌ Erro ao tentar login!", false);
-                return; // 🔥 NÃO AVANÇA
+                Debug.LogError("Erro ao tentar login: " + e.Message);
+                ShowFeedback("Erro ao tentar login!", false);
+                return;
             }
             finally
             {
                 connection.Close();
-                Debug.Log("🔴 Conexão com a BD fechada após tentativa de login.");
+                Debug.Log("Conexão com a BD fechada após tentativa de login.");
             }
         }
     }
 
     public void LogoutUser()
     {
-        Debug.Log("🔴 Logout realizado. Redirecionando para a tela de login...");
+        Debug.Log("Logout realizado. Redirecionando para a tela de login...");
         PlayerPrefs.DeleteKey("loggedInUser");
-        SceneManager.LoadScene(2); // Retorna para a tela de login
+        SceneManager.LoadScene(2);
     }
 
     void ShowFeedback(string message, bool isSuccess)
     {
         feedbackText.text = message;
-        feedbackText.color = isSuccess ? Color.green : Color.red;
-        StartCoroutine(HideFeedbackAfterTime(3f));  // Oculta a mensagem após 3 segundos
+        feedbackText.color = isSuccess ? Color.blue : Color.blue;
+        StartCoroutine(HideFeedbackAfterTime(5f));  // Oculta a mensagem após 5 segundos
     }
 
     IEnumerator HideFeedbackAfterTime(float seconds)
