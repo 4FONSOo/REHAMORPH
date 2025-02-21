@@ -15,7 +15,7 @@ public class BlinkingCursorMultiple : MonoBehaviour
 
     public InputFieldData[] inputFields; // Lista de todos os campos
 
-    void Start()
+    void OnEnable()
     {
         // Configura os placeholders iniciais e desativa os cursores padrões
         foreach (var field in inputFields)

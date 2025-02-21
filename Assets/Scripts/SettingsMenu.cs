@@ -11,7 +11,7 @@ public class ScriptMenu : MonoBehaviour
     public TMP_Dropdown QualityDropdown; // Dropdown para qualidade
     private Resolution[] resolutions;
 
-    void Start()
+    void OnEnable()
     {
         // Configurar resoluções
         if (ResolutionDropdown == null)

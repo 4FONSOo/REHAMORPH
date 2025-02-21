@@ -11,12 +11,15 @@ using System.IO;
 
 public class game_dataScript : MonoBehaviour
 {
+    // Campos de registro
     public TMP_InputField nomeInput;
     public TMP_InputField idadeInput;
     public TMP_InputField pesoInput;
     public TMP_InputField alturaInput;
     public TMP_InputField emailInput;
     public TMP_InputField passwordInput;
+
+    // Campos de login
     public TMP_InputField loginEmailInput;
     public TMP_InputField loginPasswordInput;
     public TMP_Text feedbackText;
@@ -26,7 +29,7 @@ public class game_dataScript : MonoBehaviour
 
     void Start()
     {
-        dbPath = "C://Users//afons//REHAMORPH---MENUS-Work/game_data.db";
+        dbPath = "C://Users//Utilizador//REHAMORPH - MENUS//REHAMORPH - MENUS Work/game_data.db";
         Debug.Log("Caminho da base de dados: " + dbPath);
 
         if (!File.Exists(dbPath))
@@ -38,6 +41,25 @@ public class game_dataScript : MonoBehaviour
             Debug.Log("Base de dados encontrada!");
         }
     }
+
+    // Detecta a tecla "Enter" e chama a função adequada dependendo da página ativa
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+        {
+            // Se o campo de registro estiver ativo, chama RegisterUser()
+            if (nomeInput != null && nomeInput.gameObject.activeInHierarchy)
+            {
+                RegisterUser();
+            }
+            // Caso contrário, se o campo de login estiver ativo, chama LoginUser()
+            else if (loginEmailInput != null && loginEmailInput.gameObject.activeInHierarchy)
+            {
+                LoginUser();
+            }
+        }
+    }
+
     public void RegisterUser()
     {
         Debug.Log("Entrou no RegisterUser()");
@@ -133,7 +155,6 @@ public class game_dataScript : MonoBehaviour
             SceneManager.LoadScene(2);
         }
     }
-
 
     public void LoginUser()
     {

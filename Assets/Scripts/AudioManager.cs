@@ -6,11 +6,11 @@ public class VolumeSettings : MonoBehaviour
 {
     [SerializeField] private AudioMixer myMixer;
     [SerializeField] private Slider musicSlider;
-    [SerializeField] private Toggle muteToggle; // Toggle do UI para mute
+    [SerializeField] private Toggle muteToggle;
 
-    private float _lastVolume = 0.5f; // Volume salvo antes de mutar
+    private float _lastVolume = 0.5f;
 
-    private void Start()
+    private void Awake()
     {
         if (PlayerPrefs.HasKey("musicVolume"))
         {
@@ -18,40 +18,74 @@ public class VolumeSettings : MonoBehaviour
         }
         else
         {
-            _lastVolume = musicSlider.value;
+            _lastVolume = 0.5f;
             SetVolume();
         }
 
-        muteToggle.onValueChanged.AddListener(delegate { MuteToggle(); }); // Adiciona evento ao botão de mute
+        if (PlayerPrefs.HasKey("muteState"))
+        {
+            bool isMuted = PlayerPrefs.GetInt("muteState") == 1;
+            if (muteToggle != null)
+                muteToggle.isOn = isMuted;
+            ApplyMute(isMuted);
+        }
     }
 
-    // Método para alterar o volume com base no slider
+    private void Start()
+    {
+        // Aplica imediatamente o volume salvo ao iniciar a cena
+        FindObjectOfType<BackgroundMusic>()?.ApplyVolume(PlayerPrefs.GetFloat("musicVolume", 0.5f));
+    }
+
+    private void OnEnable()
+    {
+        if (muteToggle != null)
+            muteToggle.onValueChanged.AddListener(MuteToggle);
+    }
+
+    private void OnDisable()
+    {
+        if (muteToggle != null)
+            muteToggle.onValueChanged.RemoveListener(MuteToggle);
+    }
+
     public void SetVolume()
     {
+        if (musicSlider == null) return;
+
         float volume = musicSlider.value;
-        _lastVolume = volume; // Salva o volume antes de mutar
-        myMixer.SetFloat("music", Mathf.Log10(volume) * 20);
+        _lastVolume = volume;
+
+        if (muteToggle == null || !muteToggle.isOn)
+        {
+            myMixer.SetFloat("music", Mathf.Log10(volume) * 20);
+            FindObjectOfType<BackgroundMusic>()?.ApplyVolume(volume);
+        }
+
         PlayerPrefs.SetFloat("musicVolume", volume);
         PlayerPrefs.Save();
     }
 
-    // Método para mutar e desmutar
-    public void MuteToggle()
+    public void MuteToggle(bool isMuted)
     {
-        if (muteToggle.isOn)
-        {
-            myMixer.SetFloat("music", -80f); // Volume mínimo no AudioMixer (silêncio total)
-        }
-        else
-        {
-            myMixer.SetFloat("music", Mathf.Log10(_lastVolume) * 20); // Restaura o último volume salvo
-        }
+        ApplyMute(isMuted);
+        FindObjectOfType<BackgroundMusic>()?.ApplyMute(isMuted);
+        PlayerPrefs.SetInt("muteState", isMuted ? 1 : 0);
+        PlayerPrefs.Save();
+    }
+
+    private void ApplyMute(bool isMuted)
+    {
+        myMixer.SetFloat("music", isMuted ? -80f : Mathf.Log10(_lastVolume) * 20);
     }
 
     private void LoadVolume()
     {
         _lastVolume = PlayerPrefs.GetFloat("musicVolume");
-        musicSlider.value = _lastVolume;
+
+        if (musicSlider != null)
+            musicSlider.value = _lastVolume;
+
         SetVolume();
     }
 }

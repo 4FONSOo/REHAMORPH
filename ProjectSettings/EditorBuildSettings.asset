@@ -6,30 +6,33 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/MainMenu.unity
+    path: Assets/Scenes/RegularPlayer/MainMenu.unity
     guid: 2cda990e2423bbf4892e6590ba056729
   - enabled: 1
-    path: Assets/Scenes/SettingsMenu.unity
+    path: Assets/Scenes/RegularPlayer/SettingsMenu.unity
     guid: 47f6e43e42f1bd246977e841a1105acf
   - enabled: 1
-    path: Assets/Scenes/LoginMenu.unity
+    path: Assets/Scenes/RegularPlayer/LoginMenu.unity
     guid: c1f8890d9117dd548a87a22214d8dd9d
   - enabled: 1
-    path: Assets/Scenes/RegisterMenu.unity
+    path: Assets/Scenes/RegularPlayer/RegisterMenu.unity
     guid: 42b172ca2f5e16944b44565ebdf1ebcd
   - enabled: 1
-    path: Assets/Scenes/PlayerMenuLogin.unity
+    path: Assets/Scenes/RegularPlayer/PlayerMenuLogin.unity
     guid: 7b9f791a33cac4646b7e5a1e6130b17c
   - enabled: 1
-    path: Assets/Scenes/GameCorpoTodo.unity
+    path: Assets/Scenes/RegularPlayer/GameCorpoTodo.unity
     guid: d67c016cc9435db4ea6259da03c0e070
   - enabled: 1
-    path: Assets/Scenes/GameInferior.unity
+    path: Assets/Scenes/RegularPlayer/GameInferior.unity
     guid: 63172c73c8d362344991f653d250c955
   - enabled: 1
-    path: Assets/Scenes/GameSuperior.unity
+    path: Assets/Scenes/RegularPlayer/GameSuperior.unity
     guid: fe360a0059d791045b401cd019e87aa5
   - enabled: 1
-    path: Assets/Scenes/PlayerSelectGame.unity
+    path: Assets/Scenes/RegularPlayer/PlayerSelectGame.unity
     guid: e633e0c7c40af7844aa8d17b52493b6e
+  - enabled: 1
+    path: Assets/Scenes/RegularPlayer/ConsultarProgresso.unity
+    guid: 99ac9f44e32256242bbbcca89d30a4e8
   m_configObjects: {}

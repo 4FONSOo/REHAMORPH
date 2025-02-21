@@ -7,7 +7,7 @@ public class MainMenu : MonoBehaviour
 {
     private static Stack<int> sceneHistory = new Stack<int>(); // Pilha para armazenar cenas visitadas
 
-    void Start()
+    void OnEnable()
     {
         int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
 
@@ -78,7 +78,10 @@ public class MainMenu : MonoBehaviour
     {
         LoadSceneAndSave(6);
     }
-
+    public void GoProgress()
+    {
+        LoadSceneAndSave(9);
+    }
     public void GoBack()
     {
         if (sceneHistory.Count > 1) // Sempre mantém pelo menos uma cena na pilha

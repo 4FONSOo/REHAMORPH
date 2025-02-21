@@ -9,7 +9,7 @@ public class NewBehaviourScript : MonoBehaviour
     private string input;
 
     // Start is called before the first frame update
-    void Start()
+    void OnEnable()
     {
 
     }
