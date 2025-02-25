@@ -82,6 +82,15 @@ public class MainMenu : MonoBehaviour
     {
         LoadSceneAndSave(9);
     }
+    public void GoToAccount()
+    {
+        LoadSceneAndSave(10);
+    }
+
+    public void GoToMainSettings()
+    {
+        LoadSceneAndSave(11);
+    }
     public void GoBack()
     {
         if (sceneHistory.Count > 1) // Sempre mantém pelo menos uma cena na pilha

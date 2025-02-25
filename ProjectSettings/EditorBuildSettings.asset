@@ -35,4 +35,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/RegularPlayer/ConsultarProgresso.unity
     guid: 99ac9f44e32256242bbbcca89d30a4e8
+  - enabled: 1
+    path: Assets/Scenes/RegularPlayer/AccountSettings.unity
+    guid: ade39e7018a6c6b4eae47ab0091b7349
+  - enabled: 1
+    path: Assets/Scenes/RegularPlayer/MainSettingsMenu.unity
+    guid: c4b810e5eefd0f442b6e1cdef7bcf8bd
   m_configObjects: {}

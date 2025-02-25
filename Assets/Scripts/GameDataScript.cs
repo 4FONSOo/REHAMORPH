@@ -8,6 +8,7 @@ using System.Security.Cryptography;
 using System.Text;
 using UnityEngine.SceneManagement;
 using System.IO;
+using JetBrains.Annotations;
 
 public class game_dataScript : MonoBehaviour
 {
@@ -189,7 +190,7 @@ public class game_dataScript : MonoBehaviour
 
                 using (var command = connection.CreateCommand())
                 {
-                    command.CommandText = "SELECT password_hash FROM player WHERE email = @email;";
+                    command.CommandText = "SELECT * FROM player WHERE email = @email;";
                     command.Parameters.AddWithValue("@email", loginEmailInput.text);
 
                     using (IDataReader reader = command.ExecuteReader())
@@ -203,6 +204,14 @@ public class game_dataScript : MonoBehaviour
                             {
                                 Debug.Log("Login bem-sucedido para: " + loginEmailInput.text);
                                 ShowFeedback("Login bem-sucedido!", true);
+
+                                // É preciso ir buscar os dados do player à BD
+                                string storedId = reader["id"].ToString();
+                                string storedNome = reader["nome"].ToString();
+                                
+
+
+
                                 PlayerPrefs.SetString("loggedInUser", loginEmailInput.text);
                                 SceneManager.LoadScene(4);
                             }
