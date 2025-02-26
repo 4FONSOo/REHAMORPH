@@ -15,12 +15,14 @@ public class EditProfile : MonoBehaviour
     public TMP_InputField editPasswordInput;
     public TMP_InputField editEmailInput;
 
+    private string dbPath = "C://Users//Utilizador//REHAMORPH - MENUS//REHAMORPH - MENUS Work/game_data.db";
+
     void Start()
     {
         OpenEditProfileMenu();
     }
 
-    // Exibe o menu de edição e preenche os campos com os dados atuais do usuário
+    // Exibe o menu de edição e preenche os campos com os dados atuais do utilizador
     public void OpenEditProfileMenu()
     {
         if (!PlayerPrefs.HasKey("loggedInUser"))
@@ -30,10 +32,11 @@ public class EditProfile : MonoBehaviour
         }
 
         string loggedInEmail = PlayerPrefs.GetString("loggedInUser");
+
         // Preenche o campo de email automaticamente
         editEmailInput.text = loggedInEmail;
 
-        string dbName = "URI=file:" + DatabaseManager.dbPath;
+        string dbName = "URI=file:" + dbPath;
 
         using (var connection = new SqliteConnection(dbName))
         {
@@ -78,7 +81,7 @@ public class EditProfile : MonoBehaviour
         }
 
         string loggedInEmail = PlayerPrefs.GetString("loggedInUser");
-        string dbName = "URI=file:" + DatabaseManager.dbPath;
+        string dbName = "URI=file:" + dbPath;
 
         using (var connection = new SqliteConnection(dbName))
         {
@@ -92,12 +95,13 @@ public class EditProfile : MonoBehaviour
                     command.Parameters.AddWithValue("@idade", editIdadeInput.text);
                     command.Parameters.AddWithValue("@peso", editPesoInput.text);
                     command.Parameters.AddWithValue("@altura", editAlturaInput.text);
+                    // Mesmo que o campo email seja exibido, a query utiliza o email original do usuário logado.
                     command.Parameters.AddWithValue("@loggedInEmail", loggedInEmail);
 
                     command.ExecuteNonQuery();
                 }
 
-                // Se o usuário inserir uma nova senha, atualiza-a na base de dados
+                // Se o utilizador inseriu uma nova senha, atualiza na BD
                 if (!string.IsNullOrWhiteSpace(editPasswordInput.text))
                 {
                     string newPasswordHash = HashPassword(editPasswordInput.text);
