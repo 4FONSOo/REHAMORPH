@@ -15,13 +15,12 @@ public class EditProfile : MonoBehaviour
     public TMP_InputField editPasswordInput;
     public TMP_InputField editEmailInput;
 
-    private string dbPath = "C://Users//Utilizador//REHAMORPH - MENUS//REHAMORPH - MENUS Work/game_data.db";
-
     void Start()
     {
+        OpenEditProfileMenu();
     }
 
-    // Exibe o menu de edição e preenche os campos com os dados atuais do utilizador
+    // Exibe o menu de edição e preenche os campos com os dados atuais do usuário
     public void OpenEditProfileMenu()
     {
         if (!PlayerPrefs.HasKey("loggedInUser"))
@@ -31,7 +30,10 @@ public class EditProfile : MonoBehaviour
         }
 
         string loggedInEmail = PlayerPrefs.GetString("loggedInUser");
-        string dbName = "URI=file:" + dbPath;
+        // Preenche o campo de email automaticamente
+        editEmailInput.text = loggedInEmail;
+
+        string dbName = "URI=file:" + DatabaseManager.dbPath;
 
         using (var connection = new SqliteConnection(dbName))
         {
@@ -76,7 +78,7 @@ public class EditProfile : MonoBehaviour
         }
 
         string loggedInEmail = PlayerPrefs.GetString("loggedInUser");
-        string dbName = "URI=file:" + dbPath;
+        string dbName = "URI=file:" + DatabaseManager.dbPath;
 
         using (var connection = new SqliteConnection(dbName))
         {
@@ -90,13 +92,12 @@ public class EditProfile : MonoBehaviour
                     command.Parameters.AddWithValue("@idade", editIdadeInput.text);
                     command.Parameters.AddWithValue("@peso", editPesoInput.text);
                     command.Parameters.AddWithValue("@altura", editAlturaInput.text);
-                    command.Parameters.AddWithValue("@email", editEmailInput.text);
                     command.Parameters.AddWithValue("@loggedInEmail", loggedInEmail);
 
                     command.ExecuteNonQuery();
                 }
 
-                // Se o utilizador inseriu uma nova senha, atualiza na BD
+                // Se o usuário inserir uma nova senha, atualiza-a na base de dados
                 if (!string.IsNullOrWhiteSpace(editPasswordInput.text))
                 {
                     string newPasswordHash = HashPassword(editPasswordInput.text);
@@ -133,5 +134,11 @@ public class EditProfile : MonoBehaviour
             byte[] hashBytes = sha256.ComputeHash(bytes);
             return System.BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
         }
+    }
+
+    // Função para cancelar as alterações e recarregar a cena atual
+    public void CancelProfileEdit()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }
