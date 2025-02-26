@@ -8,11 +8,10 @@ using System.Security.Cryptography;
 using System.Text;
 using UnityEngine.SceneManagement;
 using System.IO;
-using JetBrains.Annotations;
 
 public class game_dataScript : MonoBehaviour
 {
-    // Campos de registro
+    // Campos de registo
     public TMP_InputField nomeInput;
     public TMP_InputField idadeInput;
     public TMP_InputField pesoInput;
@@ -26,16 +25,19 @@ public class game_dataScript : MonoBehaviour
     public TMP_Text feedbackText;
 
     private string dbPath;
-    private const string salt = "s3gur@!"; // Salt para segurança da senha
+    private const string salt = "s3gur@!";
 
     void Start()
     {
-        dbPath = "C://Users//Utilizador//REHAMORPH - MENUS//REHAMORPH - MENUS Work/game_data.db";
+        // Define o caminho para o ficheiro da base de dados na pasta persistente
+        dbPath = Path.Combine(Application.persistentDataPath, "C://Users//afons//REHAMORPH---MENUS-Work/game_data.db");
+        CopyDatabaseIfNeeded();
+
         Debug.Log("Caminho da base de dados: " + dbPath);
 
         if (!File.Exists(dbPath))
         {
-            Debug.LogWarning("Base de dados não encontrada! Certifica-te de que estás a apontar para o ficheiro correto.");
+            Debug.LogWarning("Base de dados não encontrada! Certifica-te de que o ficheiro está no local correto.");
         }
         else
         {
@@ -43,17 +45,35 @@ public class game_dataScript : MonoBehaviour
         }
     }
 
-    // Detecta a tecla "Enter" e chama a função adequada dependendo da página ativa
+    // Copia a BD do caminho de origem para o persistentDataPath se ainda não existir
+    void CopyDatabaseIfNeeded()
+    {
+        string sourcePath = "C://Users//afons//REHAMORPH---MENUS-Work/game_data.db";
+
+        if (!File.Exists(dbPath))
+        {
+            if (File.Exists(sourcePath))
+            {
+                File.Copy(sourcePath, dbPath);
+                Debug.Log("Base de dados copiada para: " + dbPath);
+            }
+            else
+            {
+                Debug.LogError("ERRO: A base de dados de origem não existe! Caminho: " + sourcePath);
+            }
+        }
+    }
+
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
         {
-            // Se o campo de registro estiver ativo, chama RegisterUser()
+            // Se o campo de registo estiver ativo
             if (nomeInput != null && nomeInput.gameObject.activeInHierarchy)
             {
                 RegisterUser();
             }
-            // Caso contrário, se o campo de login estiver ativo, chama LoginUser()
+            // Se o campo de login estiver ativo
             else if (loginEmailInput != null && loginEmailInput.gameObject.activeInHierarchy)
             {
                 LoginUser();
@@ -65,7 +85,6 @@ public class game_dataScript : MonoBehaviour
     {
         Debug.Log("Entrou no RegisterUser()");
 
-        // Verifica se algum campo está vazio
         if (string.IsNullOrWhiteSpace(nomeInput.text) ||
             string.IsNullOrWhiteSpace(idadeInput.text) ||
             string.IsNullOrWhiteSpace(pesoInput.text) ||
@@ -74,14 +93,13 @@ public class game_dataScript : MonoBehaviour
             string.IsNullOrWhiteSpace(passwordInput.text))
         {
             ShowFeedback("Todos os campos são obrigatórios!", false);
-            return; // Para aqui! NÃO CONTINUA.
+            return;
         }
 
         string passwordHash = HashPassword(passwordInput.text);
         string dbName = "URI=file:" + dbPath;
-        bool registoSucesso = false; // Variável para controlar se o registo foi bem-sucedido
+        bool registoSucesso = false;
 
-        Debug.Log("Tentando conectar à base de dados...");
         using (var connection = new SqliteConnection(dbName))
         {
             try
@@ -99,7 +117,7 @@ public class game_dataScript : MonoBehaviour
                     if (count > 0)
                     {
                         ShowFeedback("Este e-mail já está registado!", false);
-                        return; // Para aqui! NÃO CONTINUA.
+                        return;
                     }
                 }
 
@@ -107,7 +125,7 @@ public class game_dataScript : MonoBehaviour
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = @"INSERT INTO player (nome, idade, peso, altura, email, password_hash) 
-                                        VALUES (@nome, @idade, @peso, @altura, @email, @password_hash);";
+                                              VALUES (@nome, @idade, @peso, @altura, @email, @password_hash);";
                     command.Parameters.AddWithValue("@nome", nomeInput.text);
                     command.Parameters.AddWithValue("@idade", idadeInput.text);
                     command.Parameters.AddWithValue("@peso", pesoInput.text);
@@ -120,9 +138,8 @@ public class game_dataScript : MonoBehaviour
                     if (rowsAffected > 0)
                     {
                         ShowFeedback("Conta criada com sucesso!", true);
-                        registoSucesso = true; // Define que o registo foi bem-sucedido
-
-                        // Apenas limpa os campos após um registo bem-sucedido
+                        registoSucesso = true;
+                        // Limpa os campos após registo
                         nomeInput.text = "";
                         idadeInput.text = "";
                         pesoInput.text = "";
@@ -133,7 +150,7 @@ public class game_dataScript : MonoBehaviour
                     else
                     {
                         ShowFeedback("Erro ao inserir dados!", false);
-                        return; // Para aqui! NÃO CONTINUA.
+                        return;
                     }
                 }
             }
@@ -141,7 +158,7 @@ public class game_dataScript : MonoBehaviour
             {
                 Debug.LogError("ERRO AO INSERIR: " + e.Message);
                 ShowFeedback("Erro ao inserir dados!", false);
-                return; // Para aqui! NÃO CONTINUA.
+                return;
             }
             finally
             {
@@ -150,7 +167,6 @@ public class game_dataScript : MonoBehaviour
             }
         }
 
-        // Apenas avança para a tela de login se o registo foi bem-sucedido
         if (registoSucesso)
         {
             SceneManager.LoadScene(2);
@@ -161,21 +177,9 @@ public class game_dataScript : MonoBehaviour
     {
         Debug.Log("Entrou no LoginUser()");
 
-        if (string.IsNullOrWhiteSpace(loginEmailInput.text) && string.IsNullOrWhiteSpace(loginPasswordInput.text))
+        if (string.IsNullOrWhiteSpace(loginEmailInput.text) || string.IsNullOrWhiteSpace(loginPasswordInput.text))
         {
             ShowFeedback("Preencha o e-mail e a senha!", false);
-            return;
-        }
-
-        if (string.IsNullOrWhiteSpace(loginEmailInput.text))
-        {
-            ShowFeedback("Preencha o e-mail!", false);
-            return;
-        }
-
-        if (string.IsNullOrWhiteSpace(loginPasswordInput.text))
-        {
-            ShowFeedback("Preencha a senha!", false);
             return;
         }
 
@@ -204,14 +208,6 @@ public class game_dataScript : MonoBehaviour
                             {
                                 Debug.Log("Login bem-sucedido para: " + loginEmailInput.text);
                                 ShowFeedback("Login bem-sucedido!", true);
-
-                                // É preciso ir buscar os dados do player à BD
-                                string storedId = reader["id"].ToString();
-                                string storedNome = reader["nome"].ToString();
-
-
-
-
                                 PlayerPrefs.SetString("loggedInUser", loginEmailInput.text);
                                 SceneManager.LoadScene(4);
                             }
@@ -219,14 +215,12 @@ public class game_dataScript : MonoBehaviour
                             {
                                 Debug.LogWarning("Senha incorreta para o email: " + loginEmailInput.text);
                                 ShowFeedback("Senha incorreta!", false);
-                                return;
                             }
                         }
                         else
                         {
                             Debug.LogWarning("Conta não encontrada para o email: " + loginEmailInput.text);
                             ShowFeedback("Conta não encontrada!", false);
-                            return;
                         }
                     }
                 }
@@ -235,7 +229,6 @@ public class game_dataScript : MonoBehaviour
             {
                 Debug.LogError("Erro ao tentar login: " + e.Message);
                 ShowFeedback("Erro ao tentar login!", false);
-                return;
             }
             finally
             {
@@ -255,8 +248,8 @@ public class game_dataScript : MonoBehaviour
     void ShowFeedback(string message, bool isSuccess)
     {
         feedbackText.text = message;
-        feedbackText.color = isSuccess ? Color.blue : Color.blue;
-        StartCoroutine(HideFeedbackAfterTime(5f));  // Oculta a mensagem após 5 segundos
+        feedbackText.color = isSuccess ? Color.blue : Color.red;
+        StartCoroutine(HideFeedbackAfterTime(5f));
     }
 
     IEnumerator HideFeedbackAfterTime(float seconds)

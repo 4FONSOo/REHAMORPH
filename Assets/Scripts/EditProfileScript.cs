@@ -5,6 +5,7 @@ using TMPro;
 using System.Security.Cryptography;
 using System.Text;
 using UnityEngine.SceneManagement;
+using System.IO;
 
 public class EditProfile : MonoBehaviour
 {
@@ -15,14 +16,35 @@ public class EditProfile : MonoBehaviour
     public TMP_InputField editPasswordInput;
     public TMP_InputField editEmailInput;
 
-    private string dbPath = "C://Users//Utilizador//REHAMORPH - MENUS//REHAMORPH - MENUS Work/game_data.db";
+    private string dbPath;
 
     void Start()
     {
+        // Define o caminho para o ficheiro da base de dados na pasta persistente
+        dbPath = Path.Combine(Application.persistentDataPath, "game_data.db");
+        CopyDatabaseIfNeeded();
         OpenEditProfileMenu();
     }
 
-    // Exibe o menu de edição e preenche os campos com os dados atuais do utilizador
+    // Copia a base de dados se não existir em persistentDataPath
+    void CopyDatabaseIfNeeded()
+    {
+        string sourcePath = "C://Users//afons//REHAMORPH---MENUS-Work/game_data.db";
+
+        if (!File.Exists(dbPath))
+        {
+            if (File.Exists(sourcePath))
+            {
+                File.Copy(sourcePath, dbPath);
+                Debug.Log("Base de dados copiada para: " + dbPath);
+            }
+            else
+            {
+                Debug.LogError("ERRO: A base de dados de origem não existe! Caminho: " + sourcePath);
+            }
+        }
+    }
+
     public void OpenEditProfileMenu()
     {
         if (!PlayerPrefs.HasKey("loggedInUser"))
@@ -31,10 +53,15 @@ public class EditProfile : MonoBehaviour
             return;
         }
 
+        // Preenche o campo de email com o email do usuário logado
         string loggedInEmail = PlayerPrefs.GetString("loggedInUser");
-
-        // Preenche o campo de email automaticamente
         editEmailInput.text = loggedInEmail;
+
+        if (!File.Exists(dbPath))
+        {
+            Debug.LogError("Erro: A base de dados não existe no caminho: " + dbPath);
+            return;
+        }
 
         string dbName = "URI=file:" + dbPath;
 
@@ -71,7 +98,6 @@ public class EditProfile : MonoBehaviour
         }
     }
 
-    // Atualiza os dados do perfil na base de dados
     public void SaveProfileChanges()
     {
         if (!PlayerPrefs.HasKey("loggedInUser"))
@@ -95,13 +121,10 @@ public class EditProfile : MonoBehaviour
                     command.Parameters.AddWithValue("@idade", editIdadeInput.text);
                     command.Parameters.AddWithValue("@peso", editPesoInput.text);
                     command.Parameters.AddWithValue("@altura", editAlturaInput.text);
-                    // Mesmo que o campo email seja exibido, a query utiliza o email original do usuário logado.
                     command.Parameters.AddWithValue("@loggedInEmail", loggedInEmail);
-
                     command.ExecuteNonQuery();
                 }
 
-                // Se o utilizador inseriu uma nova senha, atualiza na BD
                 if (!string.IsNullOrWhiteSpace(editPasswordInput.text))
                 {
                     string newPasswordHash = HashPassword(editPasswordInput.text);
@@ -110,7 +133,6 @@ public class EditProfile : MonoBehaviour
                         passwordCommand.CommandText = "UPDATE player SET password_hash = @passwordHash WHERE email = @loggedInEmail;";
                         passwordCommand.Parameters.AddWithValue("@passwordHash", newPasswordHash);
                         passwordCommand.Parameters.AddWithValue("@loggedInEmail", loggedInEmail);
-
                         passwordCommand.ExecuteNonQuery();
                     }
                 }
@@ -128,7 +150,6 @@ public class EditProfile : MonoBehaviour
         }
     }
 
-    // Função para criptografar a senha
     private string HashPassword(string password)
     {
         string salt = "s3gur@!";
@@ -140,7 +161,6 @@ public class EditProfile : MonoBehaviour
         }
     }
 
-    // Função para cancelar as alterações e recarregar a cena atual
     public void CancelProfileEdit()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);

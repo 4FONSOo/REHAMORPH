@@ -2,10 +2,37 @@ using UnityEngine;
 using Mono.Data.Sqlite;
 using System.Data;
 using UnityEngine.SceneManagement;
+using System.IO;
 
 public class DeleteAccount : MonoBehaviour
 {
-    private string dbPath = "C://Users//Utilizador//REHAMORPH - MENUS//REHAMORPH - MENUS Work/game_data.db";
+    private string dbPath;
+
+    void Start()
+    {
+        // Define o caminho para o ficheiro da base de dados na pasta persistente
+        dbPath = Path.Combine(Application.persistentDataPath, "game_data.db");
+        CopyDatabaseIfNeeded();
+    }
+
+    // Copia a base de dados se não existir em persistentDataPath
+    void CopyDatabaseIfNeeded()
+    {
+        string sourcePath = "C://Users//afons//REHAMORPH---MENUS-Work/game_data.db";
+
+        if (!File.Exists(dbPath))
+        {
+            if (File.Exists(sourcePath))
+            {
+                File.Copy(sourcePath, dbPath);
+                Debug.Log("Base de dados copiada para: " + dbPath);
+            }
+            else
+            {
+                Debug.LogError("ERRO: A base de dados de origem não existe! Caminho: " + sourcePath);
+            }
+        }
+    }
 
     public void DeleteUserAccount()
     {
@@ -17,6 +44,12 @@ public class DeleteAccount : MonoBehaviour
             return;
         }
 
+        if (!File.Exists(dbPath))
+        {
+            Debug.LogError("Erro: A base de dados não existe!");
+            return;
+        }
+
         string loggedInEmail = PlayerPrefs.GetString("loggedInUser");
         string dbName = "URI=file:" + dbPath;
 
@@ -25,20 +58,15 @@ public class DeleteAccount : MonoBehaviour
             try
             {
                 connection.Open();
-                Debug.Log("Conexão com a BD aberta para eliminação de conta.");
-
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = "DELETE FROM player WHERE email = @loggedInEmail;";
                     command.Parameters.AddWithValue("@loggedInEmail", loggedInEmail);
-
                     int rowsAffected = command.ExecuteNonQuery();
 
                     if (rowsAffected > 0)
                     {
                         Debug.Log("Conta eliminada com sucesso para o email: " + loggedInEmail);
-
-                        // Remove os dados do utilizador e volta para a tela de login
                         PlayerPrefs.DeleteKey("loggedInUser");
                         SceneManager.LoadScene(2);
                     }
