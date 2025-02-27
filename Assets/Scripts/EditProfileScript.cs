@@ -20,17 +20,16 @@ public class EditProfile : MonoBehaviour
 
     void Start()
     {
-        // Define o caminho para o ficheiro da base de dados na pasta persistente
-        dbPath = Path.Combine(Application.persistentDataPath, "game_data.db");
+        dbPath = Path.Combine(Application.persistentDataPath, "C://Users//afons//REHAMORPH---MENUS-Work/game_data.db");
+        Debug.Log("Caminho da base de dados utilizada: " + dbPath);
         CopyDatabaseIfNeeded();
+        Debug.Log("Email guardado no PlayerPrefs após login: " + PlayerPrefs.GetString("loggedInUser"));
         OpenEditProfileMenu();
     }
 
-    // Copia a base de dados se não existir em persistentDataPath
     void CopyDatabaseIfNeeded()
     {
         string sourcePath = "C://Users//afons//REHAMORPH---MENUS-Work/game_data.db";
-
         if (!File.Exists(dbPath))
         {
             if (File.Exists(sourcePath))
@@ -53,8 +52,8 @@ public class EditProfile : MonoBehaviour
             return;
         }
 
-        // Preenche o campo de email com o email do usuário logado
         string loggedInEmail = PlayerPrefs.GetString("loggedInUser");
+        Debug.Log("Email armazenado no PlayerPrefs: " + loggedInEmail);
         editEmailInput.text = loggedInEmail;
 
         if (!File.Exists(dbPath))
@@ -64,7 +63,6 @@ public class EditProfile : MonoBehaviour
         }
 
         string dbName = "URI=file:" + dbPath;
-
         using (var connection = new SqliteConnection(dbName))
         {
             try
@@ -74,7 +72,6 @@ public class EditProfile : MonoBehaviour
                 {
                     command.CommandText = "SELECT nome, idade, peso, altura FROM player WHERE email = @loggedInEmail;";
                     command.Parameters.AddWithValue("@loggedInEmail", loggedInEmail);
-
                     using (IDataReader reader = command.ExecuteReader())
                     {
                         if (reader.Read())
@@ -83,6 +80,10 @@ public class EditProfile : MonoBehaviour
                             editIdadeInput.text = reader["idade"].ToString();
                             editPesoInput.text = reader["peso"].ToString();
                             editAlturaInput.text = reader["altura"].ToString();
+                        }
+                        else
+                        {
+                            Debug.LogWarning("Nenhum dado encontrado para o email: " + loggedInEmail);
                         }
                     }
                 }
@@ -108,7 +109,6 @@ public class EditProfile : MonoBehaviour
 
         string loggedInEmail = PlayerPrefs.GetString("loggedInUser");
         string dbName = "URI=file:" + dbPath;
-
         using (var connection = new SqliteConnection(dbName))
         {
             try
@@ -159,6 +159,15 @@ public class EditProfile : MonoBehaviour
             byte[] hashBytes = sha256.ComputeHash(bytes);
             return System.BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
         }
+    }
+
+    public void ForceReloadProfile()
+    {
+        PlayerPrefs.DeleteKey("loggedInUser");
+        PlayerPrefs.SetString("loggedInUser", "teste@teste.pt");
+        PlayerPrefs.Save();
+        Debug.Log("Forçando carregamento do perfil para: " + PlayerPrefs.GetString("loggedInUser"));
+        OpenEditProfileMenu();
     }
 
     public void CancelProfileEdit()
