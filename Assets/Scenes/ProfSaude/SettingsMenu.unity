@@ -4737,7 +4737,7 @@ MonoBehaviour:
       - m_Target: {fileID: 615878913}
         m_TargetAssemblyTypeName: ScriptMenu, Assembly-CSharp
         m_MethodName: SetQuality
-        m_Mode: 0
+        m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
