@@ -4,7 +4,6 @@ using UnityEngine;
 using Mono.Data.Sqlite;
 using System.Data;
 using MailKit.Security;
-using System.Net.Mail; // Para System.Net.Mail.SmtpClient
 using MailKit.Net.Smtp; // Para MailKit.Net.Smtp.SmtpClient
 using MimeKit;
 using TMPro;
@@ -32,11 +31,13 @@ public class GameDataScript : MonoBehaviour
     private string dbPath;
     private const string salt = "s3gur@!";
 
-    // Configurações do SMTP – ajuste conforme seu provedor
-    private const string smtpServer = "smtp-mail.outlook.com";
+    // Configurações do SMTP para Gmail – ajuste conforme sua conta
+    private const string smtpServer = "smtp.gmail.com";
     private const int smtpPort = 587;
-    private const string smtpUser = "a22208265@alunos.ulht.pt";
-    private const string smtpPass = "AgM2004uLP02";
+    // Use o seu e-mail completo do Gmail:
+    private const string smtpUser = "afonsoogncalvesmarques@gmail.com";
+    // Insira a senha de aplicativo gerada no Google (sem espaços extras)
+    private const string smtpPass = "fqzbarsbgopnwphp";
 
     // URL base de confirmação (ajuste conforme sua necessidade)
     private const string confirmationUrlBase = "http://yourserver.com/confirm?token=";
@@ -52,7 +53,6 @@ public class GameDataScript : MonoBehaviour
     // Copia o banco de dados se não existir no persistentDataPath
     void CopyDatabaseIfNeeded()
     {
-        // Ajuste o caminho de origem conforme sua configuração local
         string sourcePath = "C://Users//Utilizador//REHAMORPH - MENUS//REHAMORPH---MENUS-Work/game_data.db";
         if (!File.Exists(dbPath))
         {
@@ -72,12 +72,10 @@ public class GameDataScript : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
         {
-            // Se os campos de registro estiverem ativos
             if (nomeInput != null && nomeInput.gameObject.activeInHierarchy)
             {
                 RegisterUser();
             }
-            // Se os campos de login estiverem ativos
             else if (loginEmailInput != null && loginEmailInput.gameObject.activeInHierarchy)
             {
                 LoginUser();
@@ -85,7 +83,7 @@ public class GameDataScript : MonoBehaviour
         }
     }
 
-    // Método de registro com geração de token de confirmação e envio de e-mail
+    // Registra o usuário, insere os dados no banco e envia e-mail de confirmação
     public void RegisterUser()
     {
         Debug.Log("RegisterUser() called");
@@ -97,14 +95,12 @@ public class GameDataScript : MonoBehaviour
             string.IsNullOrWhiteSpace(emailInput.text) ||
             string.IsNullOrWhiteSpace(passwordInput.text))
         {
-            ShowFeedback("All fields are required!", false);
+            ShowFeedback("Todos os campos são obrigatórios!!", false);
             return;
         }
 
-        // Armazena o email antes de limpar os campos
         string userEmail = emailInput.text;
         string passwordHash = HashPassword(passwordInput.text);
-        // Gera o token de confirmação
         string confirmationToken = Guid.NewGuid().ToString();
 
         string dbName = "URI=file:" + dbPath;
@@ -117,7 +113,6 @@ public class GameDataScript : MonoBehaviour
                 connection.Open();
                 Debug.Log("Connected to DB for registration");
 
-                // Verifica se o e-mail já está registrado
                 using (var checkCommand = connection.CreateCommand())
                 {
                     checkCommand.CommandText = "SELECT COUNT(*) FROM player WHERE email = @email";
@@ -125,12 +120,11 @@ public class GameDataScript : MonoBehaviour
                     int count = Convert.ToInt32(checkCommand.ExecuteScalar());
                     if (count > 0)
                     {
-                        ShowFeedback("This email is already registered!", false);
+                        ShowFeedback("Este e-mail já está a ser usado!!", false);
                         return;
                     }
                 }
 
-                // Insere os dados do novo usuário com o token e is_confirmed = 0
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = @"INSERT INTO player (nome, idade, peso, altura, email, password_hash, confirmation_token, is_confirmed)
@@ -147,12 +141,12 @@ public class GameDataScript : MonoBehaviour
                     if (rowsAffected > 0)
                     {
                         registrationSuccess = true;
-                        ShowFeedback("Account created! Check your email to confirm your account.", true);
+                        ShowFeedback("Conta criada!! Verifica o teu e-mail para confirmares a tua conta!!", true);
                         ClearRegistrationFields();
                     }
                     else
                     {
-                        ShowFeedback("Error inserting data!", false);
+                        ShowFeedback("Erro ao inserir data!!", false);
                         return;
                     }
                 }
@@ -160,7 +154,7 @@ public class GameDataScript : MonoBehaviour
             catch (Exception e)
             {
                 Debug.LogError("Error inserting data: " + e.Message);
-                ShowFeedback("Error inserting data!", false);
+                ShowFeedback("Erro ao inserir data!!", false);
                 return;
             }
             finally
@@ -172,13 +166,12 @@ public class GameDataScript : MonoBehaviour
 
         if (registrationSuccess)
         {
-            // Envia o e-mail de confirmação e redireciona para a cena de confirmação (build index 12)
             StartCoroutine(SendConfirmationEmail(userEmail, confirmationToken));
             SceneManager.LoadScene(12);
         }
     }
 
-    // Envia o e-mail de confirmação utilizando MailKit
+    // Envia o e-mail de confirmação usando MailKit
     IEnumerator SendConfirmationEmail(string userEmail, string confirmationToken)
     {
         if (string.IsNullOrWhiteSpace(userEmail))
@@ -202,6 +195,9 @@ public class GameDataScript : MonoBehaviour
 
             using (var client = new SmtpClient())
             {
+                // Define um domínio válido para o comando EHLO.
+                // Se você possuir um domínio (FQDN) use-o no lugar de "localhost".
+                client.LocalDomain = "localhost";
                 client.Connect(smtpServer, smtpPort, SecureSocketOptions.StartTls);
                 client.Authenticate(smtpUser, smtpPass);
                 client.Send(message);
@@ -217,14 +213,13 @@ public class GameDataScript : MonoBehaviour
         yield return null;
     }
 
-    // Método de login que só permite acesso se a conta estiver confirmada (is_confirmed = 1)
     public void LoginUser()
     {
         Debug.Log("LoginUser() called");
 
         if (string.IsNullOrWhiteSpace(loginEmailInput.text) || string.IsNullOrWhiteSpace(loginPasswordInput.text))
         {
-            ShowFeedback("Fill in email and password!", false);
+            ShowFeedback("Preenche o e-mail e a palavra-passe!!", false);
             return;
         }
 
@@ -237,7 +232,6 @@ public class GameDataScript : MonoBehaviour
                 connection.Open();
                 Debug.Log("DB connection opened for login");
 
-                // Seleciona somente contas confirmadas
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = "SELECT * FROM player WHERE email = @email AND is_confirmed = 1;";
@@ -253,19 +247,19 @@ public class GameDataScript : MonoBehaviour
                             if (storedHash == enteredHash)
                             {
                                 Debug.Log("Login successful for: " + loginEmailInput.text);
-                                ShowFeedback("Login successful!", true);
+                                ShowFeedback("Login com sucesso!!", true);
                                 SceneManager.LoadScene(2);
                             }
                             else
                             {
                                 Debug.LogWarning("Incorrect password for: " + loginEmailInput.text);
-                                ShowFeedback("Incorrect password!", false);
+                                ShowFeedback("Palavra-passe incorreta!!", false);
                             }
                         }
                         else
                         {
                             Debug.LogWarning("Account not found or not confirmed for email: " + loginEmailInput.text);
-                            ShowFeedback("Account not found or not confirmed!", false);
+                            ShowFeedback("Conta não encontrada ou não confirmada!!", false);
                         }
                     }
                 }
@@ -273,7 +267,7 @@ public class GameDataScript : MonoBehaviour
             catch (Exception e)
             {
                 Debug.LogError("Error during login: " + e.Message);
-                ShowFeedback("Error during login!", false);
+                ShowFeedback("Erro durante o Login!!", false);
             }
             finally
             {
@@ -287,7 +281,7 @@ public class GameDataScript : MonoBehaviour
     {
         feedbackText.text = message;
         feedbackText.color = isSuccess ? Color.blue : Color.red;
-        StartCoroutine(HideFeedbackAfterTime(5f));
+        StartCoroutine(HideFeedbackAfterTime(7f));
     }
 
     IEnumerator HideFeedbackAfterTime(float seconds)
