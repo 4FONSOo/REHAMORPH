@@ -3,13 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using Mono.Data.Sqlite;
 using System.Data;
+using MailKit.Security;
+using System.Net.Mail; // Para System.Net.Mail.SmtpClient
+using MailKit.Net.Smtp; // Para MailKit.Net.Smtp.SmtpClient
+using MimeKit;
 using TMPro;
 using System.Security.Cryptography;
 using System.Text;
 using UnityEngine.SceneManagement;
 using System.IO;
-using System.Net;
-using System.Net.Mail;
+using System;
 
 public class GameDataScript : MonoBehaviour
 {
@@ -29,12 +32,13 @@ public class GameDataScript : MonoBehaviour
     private string dbPath;
     private const string salt = "s3gur@!";
 
-    // Configurações do SMTP – ajuste de acordo com seu provedor
-    private const string smtpServer = "smtp.yourserver.com"; // Ex: smtp.gmail.com
-    private const int smtpPort = 587; // Porta comum para TLS
-    private const string smtpUser = "yourEmail@domain.com"; // Seu e-mail usado no SMTP
-    private const string smtpPass = "yourPassword"; // Senha do e-mail
-    // URL base do seu endpoint web de confirmação (não será utilizado diretamente, mas pode ser exibido no e-mail)
+    // Configurações do SMTP – ajuste conforme seu provedor
+    private const string smtpServer = "smtp-mail.outlook.com";
+    private const int smtpPort = 587;
+    private const string smtpUser = "a22208265@alunos.ulht.pt";
+    private const string smtpPass = "AgM2004uLP02";
+
+    // URL base de confirmação (ajuste conforme sua necessidade)
     private const string confirmationUrlBase = "http://yourserver.com/confirm?token=";
 
     void Start()
@@ -42,11 +46,10 @@ public class GameDataScript : MonoBehaviour
         // Define o caminho para o arquivo de banco de dados na pasta persistente
         dbPath = Path.Combine(Application.persistentDataPath, "game_data.db");
         CopyDatabaseIfNeeded();
-
         Debug.Log("Database path: " + dbPath);
     }
 
-    // Copia a base de dados se não existir no persistentDataPath
+    // Copia o banco de dados se não existir no persistentDataPath
     void CopyDatabaseIfNeeded()
     {
         // Ajuste o caminho de origem conforme sua configuração local
@@ -100,10 +103,9 @@ public class GameDataScript : MonoBehaviour
 
         // Armazena o email antes de limpar os campos
         string userEmail = emailInput.text;
-
         string passwordHash = HashPassword(passwordInput.text);
-        // Gera o token de confirmação usando Guid
-        string confirmationToken = System.Guid.NewGuid().ToString();
+        // Gera o token de confirmação
+        string confirmationToken = Guid.NewGuid().ToString();
 
         string dbName = "URI=file:" + dbPath;
         bool registrationSuccess = false;
@@ -120,7 +122,7 @@ public class GameDataScript : MonoBehaviour
                 {
                     checkCommand.CommandText = "SELECT COUNT(*) FROM player WHERE email = @email";
                     checkCommand.Parameters.AddWithValue("@email", userEmail);
-                    int count = System.Convert.ToInt32(checkCommand.ExecuteScalar());
+                    int count = Convert.ToInt32(checkCommand.ExecuteScalar());
                     if (count > 0)
                     {
                         ShowFeedback("This email is already registered!", false);
@@ -132,7 +134,7 @@ public class GameDataScript : MonoBehaviour
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = @"INSERT INTO player (nome, idade, peso, altura, email, password_hash, confirmation_token, is_confirmed)
-                                          VALUES (@nome, @idade, @peso, @altura, @email, @password_hash, @token, 0);";
+                                              VALUES (@nome, @idade, @peso, @altura, @email, @password_hash, @token, 0);";
                     command.Parameters.AddWithValue("@nome", nomeInput.text);
                     command.Parameters.AddWithValue("@idade", idadeInput.text);
                     command.Parameters.AddWithValue("@peso", pesoInput.text);
@@ -155,7 +157,7 @@ public class GameDataScript : MonoBehaviour
                     }
                 }
             }
-            catch (System.Exception e)
+            catch (Exception e)
             {
                 Debug.LogError("Error inserting data: " + e.Message);
                 ShowFeedback("Error inserting data!", false);
@@ -170,42 +172,44 @@ public class GameDataScript : MonoBehaviour
 
         if (registrationSuccess)
         {
-            // Utiliza a variável userEmail, que contém o endereço informado pelo usuário,
-            // mesmo após os campos serem limpos.
+            // Envia o e-mail de confirmação e redireciona para a cena de confirmação (build index 12)
             StartCoroutine(SendConfirmationEmail(userEmail, confirmationToken));
-            // Redireciona para a cena de confirmação (build index 12)
             SceneManager.LoadScene(12);
         }
     }
 
-
-    // Envia o e-mail de confirmação utilizando o .NET SMTP (System.Net.Mail)
+    // Envia o e-mail de confirmação utilizando MailKit
     IEnumerator SendConfirmationEmail(string userEmail, string confirmationToken)
     {
         if (string.IsNullOrWhiteSpace(userEmail))
         {
-            Debug.LogError("Email do usuário está vazio. Não é possível enviar o e-mail de confirmação.");
+            Debug.LogError("User email is empty. Cannot send confirmation email.");
             yield break;
         }
 
         string confirmationLink = confirmationUrlBase + confirmationToken;
 
-        SmtpClient client = new SmtpClient(smtpServer, smtpPort);
-        client.Credentials = new System.Net.NetworkCredential(smtpUser, smtpPass);
-        client.EnableSsl = true;
-
-        MailMessage mailMessage = new MailMessage();
-        mailMessage.From = new System.Net.Mail.MailAddress(smtpUser);
-        mailMessage.To.Add(userEmail);
-        mailMessage.Subject = "Confirm your account";
-        mailMessage.Body = "Please confirm your account by clicking the following link: " + confirmationLink;
-
         try
         {
-            client.Send(mailMessage);
+            var message = new MimeMessage();
+            message.From.Add(new MailboxAddress("Seu Jogo", smtpUser));
+            message.To.Add(new MailboxAddress("", userEmail));
+            message.Subject = "Confirm your account";
+            message.Body = new TextPart("plain")
+            {
+                Text = "Please confirm your account by clicking the following link: " + confirmationLink
+            };
+
+            using (var client = new SmtpClient())
+            {
+                client.Connect(smtpServer, smtpPort, SecureSocketOptions.StartTls);
+                client.Authenticate(smtpUser, smtpPass);
+                client.Send(message);
+                client.Disconnect(true);
+            }
             Debug.Log("Confirmation email sent to: " + userEmail);
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
             Debug.LogError("Error sending confirmation email: " + ex.Message);
         }
@@ -266,7 +270,7 @@ public class GameDataScript : MonoBehaviour
                     }
                 }
             }
-            catch (System.Exception e)
+            catch (Exception e)
             {
                 Debug.LogError("Error during login: " + e.Message);
                 ShowFeedback("Error during login!", false);
@@ -298,7 +302,7 @@ public class GameDataScript : MonoBehaviour
         {
             byte[] bytes = Encoding.UTF8.GetBytes(password + salt);
             byte[] hashBytes = sha256.ComputeHash(bytes);
-            return System.BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
+            return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
         }
     }
 

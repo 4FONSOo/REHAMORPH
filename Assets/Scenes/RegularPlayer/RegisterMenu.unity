@@ -3650,6 +3650,8 @@ GameObject:
   - component: {fileID: 1372762283}
   - component: {fileID: 1372762284}
   - component: {fileID: 1372762285}
+  - component: {fileID: 1372762286}
+  - component: {fileID: 1372762287}
   m_Layer: 0
   m_Name: ScriptRegister
   m_TagString: Untagged
@@ -3777,6 +3779,32 @@ MonoBehaviour:
   buttonImage: {fileID: 109277729}
   eyeOpenSprite: {fileID: 21300000, guid: c7e9eaca39e6b6a40be3a50bca88e6f6, type: 3}
   eyeClosedSprite: {fileID: 21300000, guid: 9bf0d1ee351a7d240aff28c8fe972f83, type: 3}
+--- !u!114 &1372762286
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1372762279}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30c9659857b4fae49911841b737409b1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  feedbackText: {fileID: 0}
+--- !u!114 &1372762287
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1372762279}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30c9659857b4fae49911841b737409b1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  feedbackText: {fileID: 194628896}
 --- !u!1 &1373457902
 GameObject:
   m_ObjectHideFlags: 0

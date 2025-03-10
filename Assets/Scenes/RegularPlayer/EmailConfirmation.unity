@@ -935,7 +935,10 @@ GameObject:
   - component: {fileID: 755524623}
   - component: {fileID: 755524625}
   - component: {fileID: 755524626}
+  - component: {fileID: 755524627}
   - component: {fileID: 755524628}
+  - component: {fileID: 755524629}
+  - component: {fileID: 755524630}
   m_Layer: 0
   m_Name: ScriptEmailConfirmation
   m_TagString: Untagged
@@ -987,7 +990,57 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe136bb6cb5a046409af5746b3cbe686, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &755524627
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 755524621}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b7d7a0a10748bbb43846bd529477a2e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inputFields:
+  - {fileID: 0}
+  - {fileID: 930575783}
 --- !u!114 &755524628
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 755524621}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ddcfb7ed99fc1d47b5e293393038123, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tokenInput: {fileID: 930575783}
+  feedbackText: {fileID: 1673400949}
+--- !u!114 &755524629
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 755524621}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c07ab5e2c1223a543b4dc66941194cee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  nomeInput: {fileID: 0}
+  idadeInput: {fileID: 0}
+  pesoInput: {fileID: 0}
+  alturaInput: {fileID: 0}
+  emailInput: {fileID: 0}
+  passwordInput: {fileID: 0}
+  loginEmailInput: {fileID: 0}
+  loginPasswordInput: {fileID: 0}
+  feedbackText: {fileID: 0}
+--- !u!114 &755524630
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -999,7 +1052,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 30c9659857b4fae49911841b737409b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tokenInput: {fileID: 930575783}
+  feedbackText: {fileID: 1673400949}
 --- !u!1 &930575781
 GameObject:
   m_ObjectHideFlags: 0
@@ -1037,7 +1090,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 992.8, y: -219}
+  m_AnchoredPosition: {x: 992.8, y: -169}
   m_SizeDelta: {x: 1288.76, y: 68.1}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &930575783
@@ -1490,7 +1543,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 964, y: -390}
+  m_AnchoredPosition: {x: 964, y: -356}
   m_SizeDelta: {x: 783.9, y: 187.2}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1288306122
@@ -2128,7 +2181,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: -279.8401, y: 0, z: 873.43726, w: 46.63983}
+  m_margin: {x: -347.90137, y: 0, z: 737.3142, w: -51.198547}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
