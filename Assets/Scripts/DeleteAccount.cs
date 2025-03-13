@@ -18,7 +18,7 @@ public class DeleteAccount : MonoBehaviour
     // Copia a base de dados se não existir em persistentDataPath
     void CopyDatabaseIfNeeded()
     {
-        string sourcePath = "C://Users//Utilizador//REHAMORPH - MENUS//REHAMORPH---MENUS-Work/game_data.db";
+        string sourcePath = "C:/Users/afons/AppData/LocalLow/DefaultCompany/REHAMORPH - MENUS/game_data.db";
 
         if (!File.Exists(dbPath))
         {

@@ -1,73 +1,53 @@
 ﻿using UnityEngine;
-using TMPro;
-using MailKit.Security;
-using MimeKit;
-using MailKit.Net.Smtp;
-using System;
-using System.Text.RegularExpressions;
+using System.Net;
+using System.Net.Mail;
+using System.Collections;
 
 public class EmailSender : MonoBehaviour
 {
-    public TMP_Text feedbackText;
+    private string smtpServer = "sandbox.smtp.mailtrap.io";
+    private int smtpPort = 587;
+    private string smtpUsername = "4b9ee014ca615f";
+    private string smtpPassword = "a3ebdfd21db39c";
 
-    public void SendEmail(string userEmail, string token)
+    public void SendConfirmationEmail(string recipientEmail, string token)
     {
-        string smtpServer = "smtp.gmail.com";
-        int smtpPort = 587;
-        string fromEmail = "afonsoogncalvesmarques@gmail.com";
-        // Use a senha de aplicativo gerada pelo Google (sem espaços)
-        string fromPassword = "fqzbarsbgopnwphp";
-
-        if (!IsValidEmail(userEmail))
+        if (string.IsNullOrEmpty(recipientEmail))
         {
-            feedbackText.text = "Email inválido!";
-            feedbackText.color = Color.red;
+            Debug.LogError("Erro: O e-mail do destinatário está vazio ou nulo.");
             return;
         }
 
-        string subject = "Confirmação de Conta";
-        string body = $"Seu código de verificação é: {token}";
+        StartCoroutine(SendEmailCoroutine(recipientEmail, token));
+    }
+
+    private IEnumerator SendEmailCoroutine(string recipientEmail, string token)
+    {
+        yield return null;
 
         try
         {
-            var message = new MimeMessage();
-            message.From.Add(new MailboxAddress("", fromEmail));
-            message.To.Add(new MailboxAddress("", userEmail));
-            message.Subject = subject;
-            message.Body = new TextPart("plain") { Text = body };
-
-            using (var client = new SmtpClient())
+            using (SmtpClient client = new SmtpClient(smtpServer, smtpPort))
             {
-                client.LocalDomain = "localhost"; // ou substitua por "seu-dominio.com" se tiver um FQDN configurado
-                client.Connect(smtpServer, smtpPort, SecureSocketOptions.StartTls);
-                client.Authenticate(fromEmail, fromPassword);
-                client.Send(message);
-                client.Disconnect(true);
+                client.UseDefaultCredentials = false;
+                client.Credentials = new NetworkCredential(smtpUsername, smtpPassword);
+                client.EnableSsl = true;
+
+                MailMessage mail = new MailMessage();
+                mail.From = new MailAddress("no-reply@teujogo.com", "Meu Jogo");
+                mail.To.Add(recipientEmail);
+                mail.Subject = "Confirmação de Conta";
+
+                string confirmationLink = "https://teuservidor.com/confirmar-conta?token=" + token;
+                mail.Body = "Clica no link abaixo para confirmar a tua conta:\n\n" + confirmationLink;
+
+                client.Send(mail);
+                Debug.Log("✅ E-mail enviado com sucesso para " + recipientEmail);
             }
-
-            feedbackText.text = "Email enviado com sucesso!";
-            feedbackText.color = Color.green;
         }
-        catch (System.Net.Sockets.SocketException)
+        catch (System.Exception ex)
         {
-            feedbackText.text = "Erro de conexão com o servidor SMTP.";
-            feedbackText.color = Color.red;
+            Debug.LogError("❌ Erro ao enviar o e-mail: " + ex.Message);
         }
-        catch (MailKit.Security.AuthenticationException)
-        {
-            feedbackText.text = "Erro de autenticação. Verifique seu email e senha.";
-            feedbackText.color = Color.red;
-        }
-        catch (Exception ex)
-        {
-            feedbackText.text = "Erro ao enviar email: " + ex.Message;
-            feedbackText.color = Color.red;
-        }
-    }
-
-    private bool IsValidEmail(string email)
-    {
-        string pattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
-        return Regex.IsMatch(email, pattern);
     }
 }

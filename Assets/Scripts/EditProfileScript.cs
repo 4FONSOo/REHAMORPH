@@ -20,7 +20,7 @@ public class EditProfile : MonoBehaviour
 
     void Start()
     {
-        dbPath = Path.Combine(Application.persistentDataPath, "C://Users//Utilizador//REHAMORPH - MENUS//REHAMORPH---MENUS-Work/game_data.db");
+        dbPath = Path.Combine(Application.persistentDataPath, "C:/Users/afons/AppData/LocalLow/DefaultCompany/REHAMORPH - MENUS/game_data.db");
         Debug.Log("Caminho da base de dados utilizada: " + dbPath);
         CopyDatabaseIfNeeded();
         Debug.Log("Email guardado no PlayerPrefs após login: " + PlayerPrefs.GetString("loggedInUser"));
@@ -29,7 +29,7 @@ public class EditProfile : MonoBehaviour
 
     void CopyDatabaseIfNeeded()
     {
-        string sourcePath = "C://Users//afons//REHAMORPH---MENUS-Work/game_data.db";
+        string sourcePath = "C:/Users/afons/AppData/LocalLow/DefaultCompany/REHAMORPH - MENUS/game_data.db";
         if (!File.Exists(dbPath))
         {
             if (File.Exists(sourcePath))

@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using Mono.Data.Sqlite;
 using System.Data;
-using MailKit.Security;
-using MailKit.Net.Smtp; // Para MailKit.Net.Smtp.SmtpClient
-using MimeKit;
 using TMPro;
 using System.Security.Cryptography;
 using System.Text;
@@ -15,45 +12,31 @@ using System;
 
 public class GameDataScript : MonoBehaviour
 {
-    // Campos de registro
     public TMP_InputField nomeInput;
     public TMP_InputField idadeInput;
     public TMP_InputField pesoInput;
     public TMP_InputField alturaInput;
     public TMP_InputField emailInput;
     public TMP_InputField passwordInput;
-
-    // Campos de login
     public TMP_InputField loginEmailInput;
     public TMP_InputField loginPasswordInput;
     public TMP_Text feedbackText;
 
     private string dbPath;
     private const string salt = "s3gur@!";
-
-    // Configurações do SMTP para Gmail – ajuste conforme sua conta
-    private const string smtpServer = "smtp.gmail.com";
-    private const int smtpPort = 587;
-    // Use o seu e-mail completo do Gmail:
-    private const string smtpUser = "afonsoogncalvesmarques@gmail.com";
-    // Insira a senha de aplicativo gerada no Google (sem espaços extras)
-    private const string smtpPass = "fqzbarsbgopnwphp";
-
-    // URL base de confirmação (ajuste conforme sua necessidade)
-    private const string confirmationUrlBase = "http://yourserver.com/confirm?token=";
+    private EmailSender emailSender;
 
     void Start()
     {
-        // Define o caminho para o arquivo de banco de dados na pasta persistente
         dbPath = Path.Combine(Application.persistentDataPath, "game_data.db");
         CopyDatabaseIfNeeded();
+        emailSender = FindObjectOfType<EmailSender>();
         Debug.Log("Database path: " + dbPath);
     }
 
-    // Copia o banco de dados se não existir no persistentDataPath
     void CopyDatabaseIfNeeded()
     {
-        string sourcePath = "C://Users//Utilizador//REHAMORPH - MENUS//REHAMORPH---MENUS-Work/game_data.db";
+        string sourcePath = "C:/Users/afons/AppData/LocalLow/DefaultCompany/REHAMORPH - MENUS/game_data.db";
         if (!File.Exists(dbPath))
         {
             if (File.Exists(sourcePath))
@@ -68,22 +51,6 @@ public class GameDataScript : MonoBehaviour
         }
     }
 
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
-        {
-            if (nomeInput != null && nomeInput.gameObject.activeInHierarchy)
-            {
-                RegisterUser();
-            }
-            else if (loginEmailInput != null && loginEmailInput.gameObject.activeInHierarchy)
-            {
-                LoginUser();
-            }
-        }
-    }
-
-    // Registra o usuário, insere os dados no banco e envia e-mail de confirmação
     public void RegisterUser()
     {
         Debug.Log("RegisterUser() called");
@@ -99,12 +66,16 @@ public class GameDataScript : MonoBehaviour
             return;
         }
 
+        if (!int.TryParse(idadeInput.text, out int idade))
+        {
+            ShowFeedback("Idade inválida!", false);
+            return;
+        }
+
         string userEmail = emailInput.text;
         string passwordHash = HashPassword(passwordInput.text);
         string confirmationToken = Guid.NewGuid().ToString();
-
         string dbName = "URI=file:" + dbPath;
-        bool registrationSuccess = false;
 
         using (var connection = new SqliteConnection(dbName))
         {
@@ -127,152 +98,47 @@ public class GameDataScript : MonoBehaviour
 
                 using (var command = connection.CreateCommand())
                 {
-                    command.CommandText = @"INSERT INTO player (nome, idade, peso, altura, email, password_hash, confirmation_token, is_confirmed)
-                                              VALUES (@nome, @idade, @peso, @altura, @email, @password_hash, @token, 0);";
+                    command.CommandText = @"INSERT INTO player (nome, idade, peso, altura, email, password_hash, email_confirmed, confirmation_token)
+                                          VALUES (@nome, @idade, @peso, @altura, @email, @password_hash, 0, @confirmation_token);";
                     command.Parameters.AddWithValue("@nome", nomeInput.text);
-                    command.Parameters.AddWithValue("@idade", idadeInput.text);
+                    command.Parameters.AddWithValue("@idade", idade);
                     command.Parameters.AddWithValue("@peso", pesoInput.text);
                     command.Parameters.AddWithValue("@altura", alturaInput.text);
                     command.Parameters.AddWithValue("@email", userEmail);
                     command.Parameters.AddWithValue("@password_hash", passwordHash);
-                    command.Parameters.AddWithValue("@token", confirmationToken);
+                    command.Parameters.AddWithValue("@confirmation_token", confirmationToken);
 
                     int rowsAffected = command.ExecuteNonQuery();
                     if (rowsAffected > 0)
                     {
-                        registrationSuccess = true;
-                        ShowFeedback("Conta criada!! Verifica o teu e-mail para confirmares a tua conta!!", true);
+                        ShowFeedback("Conta criada com sucesso! Confirma o teu e-mail.", true);
+
+                        if (emailSender != null)
+                        {
+                            emailSender.SendConfirmationEmail(userEmail, confirmationToken);
+                        }
+                        else
+                        {
+                            Debug.LogError("EmailSender não encontrado na cena!");
+                        }
+
                         ClearRegistrationFields();
                     }
                     else
                     {
-                        ShowFeedback("Erro ao inserir data!!", false);
-                        return;
+                        ShowFeedback("Erro ao inserir dados!!", false);
                     }
                 }
             }
             catch (Exception e)
             {
                 Debug.LogError("Error inserting data: " + e.Message);
-                ShowFeedback("Erro ao inserir data!!", false);
-                return;
+                ShowFeedback("Erro ao inserir dados!!", false);
             }
             finally
             {
                 connection.Close();
                 Debug.Log("DB connection closed after registration");
-            }
-        }
-
-        if (registrationSuccess)
-        {
-            StartCoroutine(SendConfirmationEmail(userEmail, confirmationToken));
-            SceneManager.LoadScene(12);
-        }
-    }
-
-    // Envia o e-mail de confirmação usando MailKit
-    IEnumerator SendConfirmationEmail(string userEmail, string confirmationToken)
-    {
-        if (string.IsNullOrWhiteSpace(userEmail))
-        {
-            Debug.LogError("User email is empty. Cannot send confirmation email.");
-            yield break;
-        }
-
-        string confirmationLink = confirmationUrlBase + confirmationToken;
-
-        try
-        {
-            var message = new MimeMessage();
-            message.From.Add(new MailboxAddress("Seu Jogo", smtpUser));
-            message.To.Add(new MailboxAddress("", userEmail));
-            message.Subject = "Confirm your account";
-            message.Body = new TextPart("plain")
-            {
-                Text = "Please confirm your account by clicking the following link: " + confirmationLink
-            };
-
-            using (var client = new SmtpClient())
-            {
-                // Define um domínio válido para o comando EHLO.
-                // Se você possuir um domínio (FQDN) use-o no lugar de "localhost".
-                client.LocalDomain = "localhost";
-                client.Connect(smtpServer, smtpPort, SecureSocketOptions.StartTls);
-                client.Authenticate(smtpUser, smtpPass);
-                client.Send(message);
-                client.Disconnect(true);
-            }
-            Debug.Log("Confirmation email sent to: " + userEmail);
-        }
-        catch (Exception ex)
-        {
-            Debug.LogError("Error sending confirmation email: " + ex.Message);
-        }
-
-        yield return null;
-    }
-
-    public void LoginUser()
-    {
-        Debug.Log("LoginUser() called");
-
-        if (string.IsNullOrWhiteSpace(loginEmailInput.text) || string.IsNullOrWhiteSpace(loginPasswordInput.text))
-        {
-            ShowFeedback("Preenche o e-mail e a palavra-passe!!", false);
-            return;
-        }
-
-        string dbName = "URI=file:" + dbPath;
-
-        using (var connection = new SqliteConnection(dbName))
-        {
-            try
-            {
-                connection.Open();
-                Debug.Log("DB connection opened for login");
-
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandText = "SELECT * FROM player WHERE email = @email AND is_confirmed = 1;";
-                    command.Parameters.AddWithValue("@email", loginEmailInput.text);
-
-                    using (IDataReader reader = command.ExecuteReader())
-                    {
-                        if (reader.Read())
-                        {
-                            string storedHash = reader["password_hash"].ToString();
-                            string enteredHash = HashPassword(loginPasswordInput.text);
-
-                            if (storedHash == enteredHash)
-                            {
-                                Debug.Log("Login successful for: " + loginEmailInput.text);
-                                ShowFeedback("Login com sucesso!!", true);
-                                SceneManager.LoadScene(2);
-                            }
-                            else
-                            {
-                                Debug.LogWarning("Incorrect password for: " + loginEmailInput.text);
-                                ShowFeedback("Palavra-passe incorreta!!", false);
-                            }
-                        }
-                        else
-                        {
-                            Debug.LogWarning("Account not found or not confirmed for email: " + loginEmailInput.text);
-                            ShowFeedback("Conta não encontrada ou não confirmada!!", false);
-                        }
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Debug.LogError("Error during login: " + e.Message);
-                ShowFeedback("Erro durante o Login!!", false);
-            }
-            finally
-            {
-                connection.Close();
-                Debug.Log("DB connection closed after login attempt");
             }
         }
     }
