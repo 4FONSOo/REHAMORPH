@@ -1,14 +1,11 @@
 ﻿using UnityEngine;
-using System.Net;
-using System.Net.Mail;
+using UnityEngine.Networking;
 using System.Collections;
 
 public class EmailSender : MonoBehaviour
 {
-    private string smtpServer = "sandbox.smtp.mailtrap.io";
-    private int smtpPort = 587;
-    private string smtpUsername = "4b9ee014ca615f";
-    private string smtpPassword = "a3ebdfd21db39c";
+    // URL da API do Node.js (certifique-se que o endereço e porta estão corretos)
+    private string apiUrl = "http://localhost:3000/send-confirmation";
 
     public void SendConfirmationEmail(string recipientEmail, string token)
     {
@@ -23,31 +20,27 @@ public class EmailSender : MonoBehaviour
 
     private IEnumerator SendEmailCoroutine(string recipientEmail, string token)
     {
-        yield return null;
+        // Cria o JSON com os dados necessários
+        string jsonData = "{\"email\":\"" + recipientEmail + "\", \"token\":\"" + token + "\"}";
 
-        try
+        using (UnityWebRequest request = new UnityWebRequest(apiUrl, "POST"))
         {
-            using (SmtpClient client = new SmtpClient(smtpServer, smtpPort))
+            byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonData);
+            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("Content-Type", "application/json");
+
+            // Envia a requisição e aguarda a resposta
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
             {
-                client.UseDefaultCredentials = false;
-                client.Credentials = new NetworkCredential(smtpUsername, smtpPassword);
-                client.EnableSsl = true;
-
-                MailMessage mail = new MailMessage();
-                mail.From = new MailAddress("no-reply@teujogo.com", "Meu Jogo");
-                mail.To.Add(recipientEmail);
-                mail.Subject = "Confirmação de Conta";
-
-                string confirmationLink = "https://teuservidor.com/confirmar-conta?token=" + token;
-                mail.Body = "Clica no link abaixo para confirmar a tua conta:\n\n" + confirmationLink;
-
-                client.Send(mail);
-                Debug.Log("✅ E-mail enviado com sucesso para " + recipientEmail);
+                Debug.Log("✅ E-mail enviado com sucesso!");
             }
-        }
-        catch (System.Exception ex)
-        {
-            Debug.LogError("❌ Erro ao enviar o e-mail: " + ex.Message);
+            else
+            {
+                Debug.LogError("❌ Erro ao enviar e-mail: " + request.error);
+            }
         }
     }
 }

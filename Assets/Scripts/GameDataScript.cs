@@ -113,6 +113,7 @@ public class GameDataScript : MonoBehaviour
                     {
                         ShowFeedback("Conta criada com sucesso! Confirma o teu e-mail.", true);
 
+                        // Chama a API para enviar o e-mail de confirmação
                         if (emailSender != null)
                         {
                             emailSender.SendConfirmationEmail(userEmail, confirmationToken);
