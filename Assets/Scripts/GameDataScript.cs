@@ -201,8 +201,7 @@ public class GameDataScript : MonoBehaviour
                     if (rows > 0)
                     {
                         ShowFeedback("Conta confirmada com sucesso!", true);
-                        // Avança diretamente para a tela do jogo (nome da cena: "GameScene")
-                        SceneManager.LoadScene(4);
+                        SceneManager.LoadScene(2);
                     }
                     else
                     {
