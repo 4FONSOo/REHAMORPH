@@ -41,4 +41,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/RegularPlayer/MainSettingsMenu.unity
     guid: c4b810e5eefd0f442b6e1cdef7bcf8bd
+  - enabled: 1
+    path: Assets/Scenes/RegularPlayer/TokenConfimation.unity
+    guid: 7fa24af7e94025743b336afa915dd947
   m_configObjects: {}

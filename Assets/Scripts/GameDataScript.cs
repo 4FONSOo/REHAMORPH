@@ -24,8 +24,8 @@ public class GameDataScript : MonoBehaviour
     public TMP_InputField loginEmailInput;
     public TMP_InputField loginPasswordInput;
 
-    // Campo para confirmação (o usuário insere o token recebido por e-mail)
-    public TMP_InputField tokenInput;
+    // Não usamos mais o campo tokenInput aqui, pois o token será recebido como parâmetro
+    // public TMP_InputField tokenInput;
 
     public TMP_Text feedbackText;
 
@@ -60,8 +60,9 @@ public class GameDataScript : MonoBehaviour
 
     public void RegisterUser()
     {
-        Debug.Log("RegisterUser() called");
+        Debug.Log("RegisterUser() chamado");
 
+        // Verifica se os campos estão preenchidos
         if (string.IsNullOrWhiteSpace(nomeInput.text) ||
             string.IsNullOrWhiteSpace(idadeInput.text) ||
             string.IsNullOrWhiteSpace(pesoInput.text) ||
@@ -69,7 +70,7 @@ public class GameDataScript : MonoBehaviour
             string.IsNullOrWhiteSpace(emailInput.text) ||
             string.IsNullOrWhiteSpace(passwordInput.text))
         {
-            ShowFeedback("Todos os campos são obrigatórios!!", false);
+            ShowFeedback("Todos os campos são obrigatórios!", false);
             return;
         }
 
@@ -89,9 +90,9 @@ public class GameDataScript : MonoBehaviour
             try
             {
                 connection.Open();
-                Debug.Log("Connected to DB for registration");
+                Debug.Log("Conectado ao DB para registro");
 
-                // Verifica se já existe um usuário com este e-mail
+                // Verifica se o e-mail já existe
                 using (var checkCommand = connection.CreateCommand())
                 {
                     checkCommand.CommandText = "SELECT COUNT(*) FROM player WHERE email = @email";
@@ -99,19 +100,19 @@ public class GameDataScript : MonoBehaviour
                     int count = Convert.ToInt32(checkCommand.ExecuteScalar());
                     if (count > 0)
                     {
-                        ShowFeedback("Este e-mail já está a ser usado!!", false);
+                        ShowFeedback("Este e-mail já está a ser usado!", false);
                         return;
                     }
                 }
 
-                // Insere novo usuário com is_confirmed = 0 (não confirmado)
+                // Insere novo usuário
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = @"
-                        INSERT INTO player 
-                            (nome, idade, peso, altura, email, password_hash, is_confirmed, confirmation_token)
-                        VALUES 
-                            (@nome, @idade, @peso, @altura, @email, @password_hash, 0, @confirmation_token);";
+                    INSERT INTO player 
+                        (nome, idade, peso, altura, email, password_hash, is_confirmed, confirmation_token)
+                    VALUES 
+                        (@nome, @idade, @peso, @altura, @email, @password_hash, 0, @confirmation_token);";
 
                     command.Parameters.AddWithValue("@nome", nomeInput.text);
                     command.Parameters.AddWithValue("@idade", idade);
@@ -124,49 +125,67 @@ public class GameDataScript : MonoBehaviour
                     int rowsAffected = command.ExecuteNonQuery();
                     if (rowsAffected > 0)
                     {
-                        ShowFeedback("Conta criada com sucesso! Confirma o teu e-mail.", true);
-
-                        // Chama a API para enviar o e-mail de confirmação
-                        if (emailSender != null)
-                        {
-                            emailSender.SendConfirmationEmail(userEmail, confirmationToken);
-                        }
-                        else
-                        {
-                            Debug.LogError("EmailSender não encontrado na cena!");
-                        }
-
-                        ClearRegistrationFields();
+                        ShowFeedback("Conta criada! Enviando e-mail de confirmação...", true);
+                        // Envia o e-mail e aguarda para avançar
+                        StartCoroutine(SendEmailAndAdvance(userEmail, confirmationToken));
                     }
                     else
                     {
-                        ShowFeedback("Erro ao inserir dados!!", false);
+                        ShowFeedback("Erro ao inserir dados!", false);
                     }
                 }
             }
             catch (Exception e)
             {
-                Debug.LogError("Error inserting data: " + e.Message);
-                ShowFeedback("Erro ao inserir dados!!", false);
+                Debug.LogError("Erro ao inserir dados: " + e.Message);
+                ShowFeedback("Erro ao criar conta!", false);
             }
             finally
             {
                 connection.Close();
-                Debug.Log("DB connection closed after registration");
             }
         }
     }
 
-    // Método para que o usuário confirme a conta utilizando o token recebido
-    public void ConfirmEmail()
+    private IEnumerator SendEmailAndAdvance(string email, string token)
     {
-        string token = tokenInput.text;
+        bool emailSent = false;
+
+        if (emailSender != null)
+        {
+            emailSender.SendConfirmationEmail(email, token);
+            emailSent = true;
+        }
+        else
+        {
+            Debug.LogError("EmailSender não encontrado na cena!");
+        }
+
+        yield return new WaitForSeconds(3);
+
+        if (emailSent)
+        {
+            ShowFeedback("E-mail enviado! Verifica tua caixa de entrada.", true);
+            yield return new WaitForSeconds(2);
+            // Após o envio, a cena para inserção do token (por exemplo, cena 12) é carregada
+            SceneManager.LoadScene(12);
+        }
+        else
+        {
+            ShowFeedback("Erro ao enviar o e-mail. Tenta novamente.", false);
+        }
+    }
+
+    // Método para confirmar a conta utilizando o token recebido como parâmetro
+    public void ConfirmEmail(string token)
+    {
         if (string.IsNullOrEmpty(token))
         {
             ShowFeedback("Por favor, insira o token de confirmação.", false);
             return;
         }
 
+        Debug.Log("Token recebido: " + token);
         string dbName = "URI=file:" + dbPath;
         using (var connection = new SqliteConnection(dbName))
         {
@@ -182,8 +201,8 @@ public class GameDataScript : MonoBehaviour
                     if (rows > 0)
                     {
                         ShowFeedback("Conta confirmada com sucesso!", true);
-                        // Avança para a LoginScene
-                        SceneManager.LoadScene("LoginScene");
+                        // Avança para a cena de login (índice 2)
+                        SceneManager.LoadScene(2);
                     }
                     else
                     {
@@ -203,7 +222,6 @@ public class GameDataScript : MonoBehaviour
         }
     }
 
-    // Método de login que só avança se o e-mail estiver confirmado
     public void LoginUser()
     {
         string userEmail = loginEmailInput.text;
@@ -229,8 +247,7 @@ public class GameDataScript : MonoBehaviour
                             {
                                 if (isConfirmed == 1)
                                 {
-                                    // Avança para a LoginScene se o e-mail estiver confirmado
-                                    SceneManager.LoadScene("LoginScene");
+                                    SceneManager.LoadScene(2);
                                 }
                                 else
                                 {
@@ -239,12 +256,12 @@ public class GameDataScript : MonoBehaviour
                             }
                             else
                             {
-                                ShowFeedback("Senha incorreta!", false);
+                                ShowFeedback("Palavra-passe incorreta!", false);
                             }
                         }
                         else
                         {
-                            ShowFeedback("Usuário não encontrado!", false);
+                            ShowFeedback("Conta não encontrada!", false);
                         }
                     }
                 }
@@ -262,15 +279,23 @@ public class GameDataScript : MonoBehaviour
 
     void ShowFeedback(string message, bool isSuccess)
     {
-        feedbackText.text = message;
-        feedbackText.color = isSuccess ? Color.blue : Color.red;
-        StartCoroutine(HideFeedbackAfterTime(7f));
+        if (feedbackText != null)
+        {
+            feedbackText.text = message;
+            feedbackText.color = isSuccess ? Color.blue : Color.red;
+            StartCoroutine(HideFeedbackAfterTime(7f));
+        }
+        else
+        {
+            Debug.Log(message);
+        }
     }
 
     IEnumerator HideFeedbackAfterTime(float seconds)
     {
         yield return new WaitForSeconds(seconds);
-        feedbackText.text = "";
+        if (feedbackText != null)
+            feedbackText.text = "";
     }
 
     string HashPassword(string password)
