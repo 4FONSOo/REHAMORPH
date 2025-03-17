@@ -4,7 +4,7 @@ using System.Collections;
 
 public class EmailSender : MonoBehaviour
 {
-    // URL da API do Node.js (certifique-se que o endereço e porta estão corretos)
+    // URL da API do Node.js (confirme que o endereço e a porta estão corretos)
     private string apiUrl = "http://localhost:3000/send-confirmation";
 
     public void SendConfirmationEmail(string recipientEmail, string token)
@@ -30,16 +30,15 @@ public class EmailSender : MonoBehaviour
             request.downloadHandler = new DownloadHandlerBuffer();
             request.SetRequestHeader("Content-Type", "application/json");
 
-            // Envia a requisição e aguarda a resposta
             yield return request.SendWebRequest();
 
             if (request.result == UnityWebRequest.Result.Success)
             {
-                Debug.Log("✅ E-mail enviado com sucesso!");
+                Debug.Log("E-mail enviado com sucesso!");
             }
             else
             {
-                Debug.LogError("❌ Erro ao enviar e-mail: " + request.error);
+                Debug.LogError("Erro ao enviar e-mail: " + request.error);
             }
         }
     }
