@@ -660,7 +660,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -143, y: -848}
+  m_AnchoredPosition: {x: -168, y: -765}
   m_SizeDelta: {x: 2407.7063, y: 380.55}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &233831312
@@ -1174,7 +1174,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 1058, y: -961}
+  m_AnchoredPosition: {x: 1058, y: -894}
   m_SizeDelta: {x: 812.33, y: 70.5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &387174496
@@ -3332,7 +3332,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 1059, y: -817}
+  m_AnchoredPosition: {x: 1059, y: -734}
   m_SizeDelta: {x: 783.9, y: 187.2}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1288306122
@@ -3693,7 +3693,6 @@ MonoBehaviour:
   passwordInput: {fileID: 560091166}
   loginEmailInput: {fileID: 1500526847}
   loginPasswordInput: {fileID: 560091166}
-  tokenInput: {fileID: 0}
   feedbackText: {fileID: 194628896}
 --- !u!114 &1372762282
 MonoBehaviour:
