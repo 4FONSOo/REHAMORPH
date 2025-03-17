@@ -467,7 +467,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Insere o teu nome...
+  m_text: Insere a tua idade...
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1655,7 +1655,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 804626739}
-        m_TargetAssemblyTypeName: game_dataScript, Assembly-CSharp
+        m_TargetAssemblyTypeName: GameDataScript, Assembly-CSharp
         m_MethodName: LogoutUser
         m_Mode: 1
         m_Arguments:
@@ -1844,7 +1844,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 1755.3, y: -183.9}
+  m_AnchoredPosition: {x: 1755.3, y: -294.9}
   m_SizeDelta: {x: 71.2, y: 51.9}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &804408431
@@ -2079,7 +2079,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 878, y: -335}
+  m_AnchoredPosition: {x: 883, y: -446}
   m_SizeDelta: {x: 371.2, y: 75.5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &849232540
@@ -2615,7 +2615,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 700, y: 121}
+  m_AnchoredPosition: {x: 700, y: 10}
   m_SizeDelta: {x: 687.3, y: 56.6717}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1009890659
@@ -2987,7 +2987,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Insere o teu nome...
+  m_text: Insere a tua palavra-passe...
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -3444,7 +3444,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 1458, y: 117.43579}
+  m_AnchoredPosition: {x: 1454, y: 6.435791}
   m_SizeDelta: {x: 687.3, y: 56.6717}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1160670445
@@ -3941,7 +3941,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Insere o teu nome...
+  m_text: Insere o teu peso...
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -4189,7 +4189,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 1458, y: -30}
+  m_AnchoredPosition: {x: 1458, y: -141}
   m_SizeDelta: {x: 687.3, y: 56.6717}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1421827969
@@ -4503,7 +4503,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 1248, y: -335}
+  m_AnchoredPosition: {x: 1232, y: -446}
   m_SizeDelta: {x: 299.868, y: 75.5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1483984154
@@ -4816,19 +4816,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1531347720}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 615878908}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: 
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &1531347720
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5304,7 +5292,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 700, y: -182}
+  m_AnchoredPosition: {x: 700, y: -293}
   m_SizeDelta: {x: 687.3, y: 56.6717}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1650885960
@@ -5667,7 +5655,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Insere o teu nome...
+  m_text: Insere o teu e-mail...
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -5781,7 +5769,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 1085, y: -737}
+  m_AnchoredPosition: {x: 1085, y: -704}
   m_SizeDelta: {x: 672.2379, y: 151.7}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1708717196
@@ -5915,7 +5903,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 700, y: -30}
+  m_AnchoredPosition: {x: 700, y: -141}
   m_SizeDelta: {x: 687.3, y: 56.6717}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1757961244
@@ -6543,7 +6531,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 1458, y: -182}
+  m_AnchoredPosition: {x: 1458, y: -293}
   m_SizeDelta: {x: 687.3, y: 56.6717}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1943697356
@@ -7038,7 +7026,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Insere o teu nome...
+  m_text: Insere a tua altura...
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

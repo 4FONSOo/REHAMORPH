@@ -68,7 +68,7 @@ public class DeleteAccount : MonoBehaviour
                         Debug.Log("Conta eliminada com sucesso para o email: " + loggedInEmail);
                         PlayerPrefs.DeleteKey("loggedInUser");
                         PlayerPrefs.Save();
-                        SceneManager.LoadScene(2); // Redireciona para a tela de login
+                        SceneManager.LoadScene(2); 
                     }
                     else
                     {

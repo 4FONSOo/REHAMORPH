@@ -105,7 +105,7 @@ public class GameDataScript : MonoBehaviour
                     }
                 }
 
-                // Insere novo usuário
+                // Insere novo utilizador
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = @"
@@ -202,7 +202,7 @@ public class GameDataScript : MonoBehaviour
                     {
                         ShowFeedback("Conta confirmada com sucesso!", true);
                         // Avança diretamente para a tela do jogo (nome da cena: "GameScene")
-                        SceneManager.LoadScene("GameScene");
+                        SceneManager.LoadScene(4);
                     }
                     else
                     {
@@ -247,7 +247,12 @@ public class GameDataScript : MonoBehaviour
                             {
                                 if (isConfirmed == 1)
                                 {
-                                    // Se a conta estiver confirmada, avança para a tela do jogo
+                                    Debug.Log("Usuário logado com sucesso: " + userEmail);
+
+                                    // SALVANDO O E-MAIL DO UTILIZADOR LOGADO NO PLAYERPREFS
+                                    PlayerPrefs.SetString("loggedInUser", userEmail);
+                                    PlayerPrefs.Save();
+
                                     SceneManager.LoadScene(4);
                                 }
                                 else
@@ -276,6 +281,18 @@ public class GameDataScript : MonoBehaviour
                 connection.Close();
             }
         }
+    }
+
+    public void LogoutUser()
+    {
+        Debug.Log("Usuário fez logout");
+
+        // Limpa o e-mail salvo no PlayerPrefs
+        PlayerPrefs.DeleteKey("loggedInUser");
+        PlayerPrefs.Save();
+
+        // Redireciona para a tela de login
+        SceneManager.LoadScene(2);
     }
 
     void ShowFeedback(string message, bool isSuccess)

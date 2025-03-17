@@ -17,13 +17,28 @@ public class EditProfile : MonoBehaviour
     public TMP_InputField editEmailInput;
 
     private string dbPath;
+    private string loggedInEmail;
 
     void Start()
     {
         dbPath = Path.Combine(Application.persistentDataPath, "game_data.db");
-        Debug.Log("Caminho da base de dados utilizada: " + dbPath);
+        Debug.Log("Caminho da base de dados: " + dbPath);
+
+        // Verifica se há um usuário logado
+        if (PlayerPrefs.HasKey("loggedInUser"))
+        {
+            loggedInEmail = PlayerPrefs.GetString("loggedInUser");
+            Debug.Log("Usuário logado: " + loggedInEmail);
+        }
+        else
+        {
+            Debug.LogWarning("Nenhum utilizador está logado! Redirecionando para a tela de login.");
+            SceneManager.LoadScene(2); 
+            return;
+        }
+
         CopyDatabaseIfNeeded();
-        OpenEditProfileMenu();
+        LoadUserProfile(); // Agora só chama se houver um utilziador logado
     }
 
     void CopyDatabaseIfNeeded()
@@ -34,30 +49,28 @@ public class EditProfile : MonoBehaviour
             if (File.Exists(sourcePath))
             {
                 File.Copy(sourcePath, dbPath);
-                Debug.Log("Base de dados copiada para: " + dbPath);
+                Debug.Log("Banco de dados copiado para: " + dbPath);
             }
             else
             {
-                Debug.LogError("ERRO: A base de dados de origem não existe! Caminho: " + sourcePath);
+                Debug.LogError("ERRO: O banco de dados não existe no caminho: " + sourcePath);
             }
         }
     }
 
-    public void OpenEditProfileMenu()
+    public void LoadUserProfile()
     {
-        if (!PlayerPrefs.HasKey("loggedInUser"))
+        if (string.IsNullOrEmpty(loggedInEmail))
         {
-            Debug.LogWarning("Nenhum utilizador está logado!");
+            Debug.LogWarning("Erro ao carregar perfil: Nenhum utilizador está logado!");
             return;
         }
 
-        string loggedInEmail = PlayerPrefs.GetString("loggedInUser");
-        Debug.Log("Email armazenado no PlayerPrefs: " + loggedInEmail);
         editEmailInput.text = loggedInEmail;
 
         if (!File.Exists(dbPath))
         {
-            Debug.LogError("Erro: A base de dados não existe no caminho: " + dbPath);
+            Debug.LogError("Erro: O banco de dados não existe!");
             return;
         }
 
@@ -69,8 +82,9 @@ public class EditProfile : MonoBehaviour
                 connection.Open();
                 using (var command = connection.CreateCommand())
                 {
-                    command.CommandText = "SELECT nome, idade, peso, altura FROM player WHERE email = @loggedInEmail;";
-                    command.Parameters.AddWithValue("@loggedInEmail", loggedInEmail);
+                    command.CommandText = "SELECT nome, idade, peso, altura FROM player WHERE email = @email;";
+                    command.Parameters.AddWithValue("@email", loggedInEmail);
+
                     using (IDataReader reader = command.ExecuteReader())
                     {
                         if (reader.Read())
@@ -79,6 +93,7 @@ public class EditProfile : MonoBehaviour
                             editIdadeInput.text = reader["idade"].ToString();
                             editPesoInput.text = reader["peso"].ToString();
                             editAlturaInput.text = reader["altura"].ToString();
+                            Debug.Log("Dados carregados com sucesso!");
                         }
                         else
                         {
@@ -100,13 +115,11 @@ public class EditProfile : MonoBehaviour
 
     public void SaveProfileChanges()
     {
-        if (!PlayerPrefs.HasKey("loggedInUser"))
+        if (string.IsNullOrEmpty(loggedInEmail))
         {
-            Debug.LogWarning("Nenhum utilizador está logado!");
+            Debug.LogWarning("Erro ao salvar perfil: Nenhum utilizador está logado!");
             return;
         }
-
-        string loggedInEmail = PlayerPrefs.GetString("loggedInUser");
 
         if (!File.Exists(dbPath))
         {
@@ -122,7 +135,11 @@ public class EditProfile : MonoBehaviour
                 connection.Open();
                 using (var command = connection.CreateCommand())
                 {
-                    command.CommandText = "UPDATE player SET nome = @nome, idade = @idade, peso = @peso, altura = @altura WHERE email = @loggedInEmail;";
+                    command.CommandText = @"
+                        UPDATE player 
+                        SET nome = @nome, idade = @idade, peso = @peso, altura = @altura 
+                        WHERE email = @loggedInEmail;";
+
                     command.Parameters.AddWithValue("@nome", editNomeInput.text);
                     command.Parameters.AddWithValue("@idade", editIdadeInput.text);
                     command.Parameters.AddWithValue("@peso", editPesoInput.text);
@@ -169,6 +186,6 @@ public class EditProfile : MonoBehaviour
 
     public void CancelProfileEdit()
     {
-        SceneManager.LoadScene("MainMenuScene"); // Redireciona para o menu principal
+        SceneManager.LoadScene(10);
     }
 }
