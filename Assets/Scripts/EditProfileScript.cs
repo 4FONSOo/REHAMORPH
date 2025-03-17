@@ -20,16 +20,15 @@ public class EditProfile : MonoBehaviour
 
     void Start()
     {
-        dbPath = Path.Combine(Application.persistentDataPath, "C:/Users/afons/AppData/LocalLow/DefaultCompany/REHAMORPH - MENUS/game_data.db");
+        dbPath = Path.Combine(Application.persistentDataPath, "game_data.db");
         Debug.Log("Caminho da base de dados utilizada: " + dbPath);
         CopyDatabaseIfNeeded();
-        Debug.Log("Email guardado no PlayerPrefs após login: " + PlayerPrefs.GetString("loggedInUser"));
         OpenEditProfileMenu();
     }
 
     void CopyDatabaseIfNeeded()
     {
-        string sourcePath = "C:/Users/afons/AppData/LocalLow/DefaultCompany/REHAMORPH - MENUS/game_data.db";
+        string sourcePath = Path.Combine(Application.streamingAssetsPath, "game_data.db");
         if (!File.Exists(dbPath))
         {
             if (File.Exists(sourcePath))
@@ -108,6 +107,13 @@ public class EditProfile : MonoBehaviour
         }
 
         string loggedInEmail = PlayerPrefs.GetString("loggedInUser");
+
+        if (!File.Exists(dbPath))
+        {
+            Debug.LogError("Erro: O banco de dados não existe!");
+            return;
+        }
+
         string dbName = "URI=file:" + dbPath;
         using (var connection = new SqliteConnection(dbName))
         {
@@ -161,17 +167,8 @@ public class EditProfile : MonoBehaviour
         }
     }
 
-    public void ForceReloadProfile()
-    {
-        PlayerPrefs.DeleteKey("loggedInUser");
-        PlayerPrefs.SetString("loggedInUser", "teste@teste.pt");
-        PlayerPrefs.Save();
-        Debug.Log("Forçando carregamento do perfil para: " + PlayerPrefs.GetString("loggedInUser"));
-        OpenEditProfileMenu();
-    }
-
     public void CancelProfileEdit()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        SceneManager.LoadScene("MainMenuScene"); // Redireciona para o menu principal
     }
 }

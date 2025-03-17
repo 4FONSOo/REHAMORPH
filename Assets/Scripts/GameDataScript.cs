@@ -24,7 +24,7 @@ public class GameDataScript : MonoBehaviour
     public TMP_InputField loginEmailInput;
     public TMP_InputField loginPasswordInput;
 
-    // Não usamos mais o campo tokenInput aqui, pois o token será recebido como parâmetro
+    // Não utilizamos mais um campo tokenInput aqui, pois o token será recebido como parâmetro
     // public TMP_InputField tokenInput;
 
     public TMP_Text feedbackText;
@@ -167,7 +167,7 @@ public class GameDataScript : MonoBehaviour
         {
             ShowFeedback("E-mail enviado! Verifica tua caixa de entrada.", true);
             yield return new WaitForSeconds(2);
-            // Após o envio, a cena para inserção do token (por exemplo, cena 12) é carregada
+            // Após o envio, carrega a tela de confirmação (pode ser uma cena para inserir o token, por exemplo, cena 12)
             SceneManager.LoadScene(12);
         }
         else
@@ -201,8 +201,8 @@ public class GameDataScript : MonoBehaviour
                     if (rows > 0)
                     {
                         ShowFeedback("Conta confirmada com sucesso!", true);
-                        // Avança para a cena de login (índice 2)
-                        SceneManager.LoadScene(2);
+                        // Avança diretamente para a tela do jogo (nome da cena: "GameScene")
+                        SceneManager.LoadScene("GameScene");
                     }
                     else
                     {
@@ -247,7 +247,8 @@ public class GameDataScript : MonoBehaviour
                             {
                                 if (isConfirmed == 1)
                                 {
-                                    SceneManager.LoadScene(2);
+                                    // Se a conta estiver confirmada, avança para a tela do jogo
+                                    SceneManager.LoadScene(4);
                                 }
                                 else
                                 {

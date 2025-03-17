@@ -10,26 +10,25 @@ public class DeleteAccount : MonoBehaviour
 
     void Start()
     {
-        // Define o caminho para o ficheiro da base de dados na pasta persistente
+        // Caminho do banco de dados na pasta persistente
         dbPath = Path.Combine(Application.persistentDataPath, "game_data.db");
         CopyDatabaseIfNeeded();
     }
 
-    // Copia a base de dados se não existir em persistentDataPath
     void CopyDatabaseIfNeeded()
     {
-        string sourcePath = "C:/Users/afons/AppData/LocalLow/DefaultCompany/REHAMORPH - MENUS/game_data.db";
+        string sourcePath = Path.Combine(Application.streamingAssetsPath, "game_data.db");
 
         if (!File.Exists(dbPath))
         {
             if (File.Exists(sourcePath))
             {
                 File.Copy(sourcePath, dbPath);
-                Debug.Log("Base de dados copiada para: " + dbPath);
+                Debug.Log("Banco de dados copiado para: " + dbPath);
             }
             else
             {
-                Debug.LogError("ERRO: A base de dados de origem não existe! Caminho: " + sourcePath);
+                Debug.LogError("ERRO: O banco de dados de origem não existe! Caminho: " + sourcePath);
             }
         }
     }
@@ -46,7 +45,7 @@ public class DeleteAccount : MonoBehaviour
 
         if (!File.Exists(dbPath))
         {
-            Debug.LogError("Erro: A base de dados não existe!");
+            Debug.LogError("Erro: O banco de dados não existe!");
             return;
         }
 
@@ -68,7 +67,8 @@ public class DeleteAccount : MonoBehaviour
                     {
                         Debug.Log("Conta eliminada com sucesso para o email: " + loggedInEmail);
                         PlayerPrefs.DeleteKey("loggedInUser");
-                        SceneManager.LoadScene(2);
+                        PlayerPrefs.Save();
+                        SceneManager.LoadScene(2); // Redireciona para a tela de login
                     }
                     else
                     {

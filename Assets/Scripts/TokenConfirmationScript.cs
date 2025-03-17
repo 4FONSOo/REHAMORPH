@@ -11,7 +11,6 @@ public class TokenValidation : MonoBehaviour
 
     void Start()
     {
-        // Verifica se os componentes foram atribuídos
         if (validateButton == null)
         {
             Debug.LogError("validateButton não foi atribuído no Inspector!");
@@ -31,7 +30,6 @@ public class TokenValidation : MonoBehaviour
             feedbackText.text = "Insira o token e pressione 'Validar'.";
         }
 
-        // Configura o listener para o botão
         validateButton.onClick.AddListener(OnValidateButtonClicked);
     }
 
