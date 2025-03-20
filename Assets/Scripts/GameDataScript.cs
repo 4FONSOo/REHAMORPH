@@ -37,6 +37,7 @@ public class GameDataScript : MonoBehaviour
     {
         dbPath = Path.Combine(Application.persistentDataPath, "game_data.db");
         CopyDatabaseIfNeeded();
+        EnsureDatabaseSchema(); // Adiciona a coluna is_confirmed se necessário
         emailSender = FindObjectOfType<EmailSender>();
         Debug.Log("Database path: " + dbPath);
     }
@@ -54,6 +55,34 @@ public class GameDataScript : MonoBehaviour
             else
             {
                 Debug.LogError("Source database not found at: " + sourcePath);
+            }
+        }
+    }
+
+    // Método para garantir que a tabela player possua a coluna is_confirmed
+    void EnsureDatabaseSchema()
+    {
+        string dbName = "URI=file:" + dbPath;
+        using (var connection = new SqliteConnection(dbName))
+        {
+            try
+            {
+                connection.Open();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "ALTER TABLE player ADD COLUMN is_confirmed INTEGER DEFAULT 0";
+                    command.ExecuteNonQuery();
+                    Debug.Log("Coluna is_confirmed adicionada à tabela player.");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Se ocorrer erro, pode ser porque a coluna já existe
+                Debug.Log("EnsureDatabaseSchema: " + ex.Message);
+            }
+            finally
+            {
+                connection.Close();
             }
         }
     }
