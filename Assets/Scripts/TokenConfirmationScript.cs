@@ -27,7 +27,7 @@ public class TokenValidation : MonoBehaviour
         }
         else
         {
-            feedbackText.text = "Insira o token e pressione 'Validar'.";
+            feedbackText.text = "Insira o token e pressione VALIDAR.";
         }
 
         validateButton.onClick.AddListener(OnValidateButtonClicked);
