@@ -1,0 +1,14 @@
+C:\Users\afons\EmailTest\bin\Debug\net9.0\EmailTest.exe
+C:\Users\afons\EmailTest\bin\Debug\net9.0\EmailTest.deps.json
+C:\Users\afons\EmailTest\bin\Debug\net9.0\EmailTest.runtimeconfig.json
+C:\Users\afons\EmailTest\bin\Debug\net9.0\EmailTest.dll
+C:\Users\afons\EmailTest\bin\Debug\net9.0\EmailTest.pdb
+C:\Users\afons\EmailTest\obj\Debug\net9.0\EmailTest.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\afons\EmailTest\obj\Debug\net9.0\EmailTest.AssemblyInfoInputs.cache
+C:\Users\afons\EmailTest\obj\Debug\net9.0\EmailTest.AssemblyInfo.cs
+C:\Users\afons\EmailTest\obj\Debug\net9.0\EmailTest.csproj.CoreCompileInputs.cache
+C:\Users\afons\EmailTest\obj\Debug\net9.0\EmailTest.dll
+C:\Users\afons\EmailTest\obj\Debug\net9.0\refint\EmailTest.dll
+C:\Users\afons\EmailTest\obj\Debug\net9.0\EmailTest.pdb
+C:\Users\afons\EmailTest\obj\Debug\net9.0\EmailTest.genruntimeconfig.cache
+C:\Users\afons\EmailTest\obj\Debug\net9.0\ref\EmailTest.dll

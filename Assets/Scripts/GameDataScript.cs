@@ -24,9 +24,6 @@ public class GameDataScript : MonoBehaviour
     public TMP_InputField loginEmailInput;
     public TMP_InputField loginPasswordInput;
 
-    // Não utilizamos mais um campo tokenInput aqui, pois o token será recebido como parâmetro
-    // public TMP_InputField tokenInput;
-
     public TMP_Text feedbackText;
 
     private string dbPath;
