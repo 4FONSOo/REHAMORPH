@@ -6,19 +6,22 @@ public class AvatarScriptCollision : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("Entrou no Trigger com: " + other.gameObject.name);
+        Debug.Log("Entrei");
 
+        // Verifica se o objeto colidido tem a tag "Cube"
         if (other.CompareTag("Cube"))
         {
-            Debug.Log("Colisão com Cube detectada!");
-
+            Debug.Log("Cubo");
+            // Chama o método CubeTouched no LevelManager para destruir o cubo e atualizar o score
             if (levelManager != null)
             {
+                Debug.Log("touch");
                 levelManager.CubeTouched();
             }
-
-            Destroy(other.gameObject);
-            Debug.Log("Cubo destruído!");
+            else
+            {
+                Debug.LogError("LevelManager não está atribuído no Inspector!");
+            }
         }
     }
 }
