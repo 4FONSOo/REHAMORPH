@@ -1,14 +1,19 @@
 using UnityEngine;
 using System.Collections;
 using System;
+using UnityEngine.UI;
 
 public class GestureListener : MonoBehaviour, KinectGestures.GestureListenerInterface
 {
 	// GUI Text to display the gesture messages.
-	public GUIText GestureInfo;
+	public Text GestureInfo;
 	
 	private bool swipeLeft;
 	private bool swipeRight;
+
+	private bool riseRightHand;
+	private bool tPose;
+	private bool jump;
 
 	
 	public bool IsSwipeLeft()
@@ -33,8 +38,40 @@ public class GestureListener : MonoBehaviour, KinectGestures.GestureListenerInte
 		return false;
 	}
 
-	
-	public void UserDetected(uint userId, int userIndex)
+    public bool IsTPose()
+    {
+        if (tPose)
+        {
+            tPose = false;
+            return true;
+        }
+
+        return false;
+    }
+
+    public bool IsRiseRightHand()
+    {
+        if (riseRightHand)
+        {
+            riseRightHand = false;
+            return true;
+        }
+
+        return false;
+    }
+
+    public bool IsJump()
+    {
+        if (jump)
+        {
+            jump = false;
+            return true;
+        }
+
+        return false;
+    }
+
+    public void UserDetected(uint userId, int userIndex)
 	{
 		// detect these user specific gestures
 		KinectManager manager = KinectManager.Instance;
@@ -44,7 +81,7 @@ public class GestureListener : MonoBehaviour, KinectGestures.GestureListenerInte
 
 		if(GestureInfo != null)
 		{
-			GestureInfo.GetComponent<GUIText>().text = "Swipe left or right to change the slides.";
+			GestureInfo.text = "Swipe left or right to change the slides. Tpose to Callibrate and Rise right hand to confirm.";
 		}
 	}
 	
@@ -52,7 +89,7 @@ public class GestureListener : MonoBehaviour, KinectGestures.GestureListenerInte
 	{
 		if(GestureInfo != null)
 		{
-			GestureInfo.GetComponent<GUIText>().text = string.Empty;
+			GestureInfo.text = string.Empty;
 		}
 	}
 
@@ -68,15 +105,25 @@ public class GestureListener : MonoBehaviour, KinectGestures.GestureListenerInte
 		string sGestureText = gesture + " detected";
 		if(GestureInfo != null)
 		{
-			GestureInfo.GetComponent<GUIText>().text = sGestureText;
+			GestureInfo.text = sGestureText;
 		}
 		
 		if(gesture == KinectGestures.Gestures.SwipeLeft)
 			swipeLeft = true;
+
 		else if(gesture == KinectGestures.Gestures.SwipeRight)
 			swipeRight = true;
 
-		return true;
+        else if (gesture == KinectGestures.Gestures.RaiseRightHand)
+            riseRightHand = true;
+
+        else if (gesture == KinectGestures.Gestures.Tpose)
+            tPose = true;
+
+        else if (gesture == KinectGestures.Gestures.Jump)
+            jump = true;
+
+        return true;
 	}
 
 	public bool GestureCancelled (uint userId, int userIndex, KinectGestures.Gestures gesture, 

@@ -188,7 +188,22 @@ ModelImporter:
     13700000: U_Char
     13700002: U_Char_Eye_L
     13700004: U_Char_Eye_R
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: MAT_U_Character_Body1
+    second: {fileID: 2100000, guid: 805c4d7a00aefd043bd7c9990c564787, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: MAT_U_Character_Head1
+    second: {fileID: 2100000, guid: 46682723e41f68845870edf44c23667a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Mat_U_Char_Eye1
+    second: {fileID: 2100000, guid: 13d3939f36835444fb0366a8a681b56e, type: 2}
   materials:
     importMaterials: 1
     materialName: 0
@@ -239,8 +254,8 @@ ModelImporter:
     secondaryUVHardAngle: 88
     secondaryUVPackMargin: 4
     useFileScale: 0
-    previousCalculatedGlobalScale: 1
-    hasPreviousCalculatedGlobalScale: 0
+    previousCalculatedGlobalScale: 0.01
+    hasPreviousCalculatedGlobalScale: 1
   tangentSpace:
     normalSmoothAngle: 60
     normalImportMode: 0

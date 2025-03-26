@@ -1,20 +1,29 @@
 using UnityEngine;
-using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class LoadMainLevel : MonoBehaviour 
 {
-	private bool levelLoaded = false;
-	
-	
-	void Update() 
+	public bool levelLoaded = false;
+	public int scenenumber;
+
+	public GestureListener gesture;
+
+    private void Awake()
+    {
+        var levelManager = FindObjectOfType<LevelManager>();
+    }
+
+    void Update() 
 	{
 		KinectManager manager = KinectManager.Instance;
-		
-		if(!levelLoaded && manager && KinectManager.IsKinectInitialized())
+
+        if (!levelLoaded && manager && KinectManager.IsKinectInitialized())
 		{
-			levelLoaded = true;
-			Application.LoadLevel(1);
-		}
-	}
-	
+            //if (gesture.IsRiseRightHand())
+            {
+                levelLoaded = true;
+                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+            }
+        }
+    }
 }

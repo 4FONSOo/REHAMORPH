@@ -8,6 +8,7 @@ TagManager:
   - SpawnedCube
   - AvatarProxy
   - Cube
+  - TriggerCube
   layers:
   - Default
   - TransparentFX

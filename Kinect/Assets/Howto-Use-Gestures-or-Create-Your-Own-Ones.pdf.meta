@@ -5,3 +5,10 @@ DefaultImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 7747
+  packageName: Kinect with MS-SDK
+  packageVersion: 1.12
+  assetPath: Assets/Howto-Use-Gestures-or-Create-Your-Own-Ones.pdf
+  uploadId: 48550

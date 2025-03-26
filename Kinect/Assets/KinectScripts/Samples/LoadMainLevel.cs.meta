@@ -9,3 +9,10 @@ MonoImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 7747
+  packageName: Kinect with MS-SDK
+  packageVersion: 1.12
+  assetPath: Assets/KinectScripts/Samples/LoadMainLevel.cs
+  uploadId: 48550

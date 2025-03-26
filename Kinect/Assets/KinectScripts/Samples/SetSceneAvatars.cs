@@ -10,7 +10,7 @@ public class SetSceneAvatars : MonoBehaviour
 		
 		if(manager)
 		{
-			manager.ClearKinectUsers();
+			//manager.ClearKinectUsers();
 			manager.Player1Avatars.Clear();
 			
 			AvatarController[] avatars = FindObjectsOfType(typeof(AvatarController)) as AvatarController[];
@@ -35,8 +35,6 @@ public class SetSceneAvatars : MonoBehaviour
 					manager.gestureListeners.Add(gl);
 				}
 			}
-
 		}
 	}
-	
 }
