@@ -1,78 +1,124 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
 
 public class Level0Manager : MonoBehaviour
 {
-    [Header("Configurações dos Cubos Invisíveis")]
-    public GameObject[] triggerCubes; // Cubos invisíveis para cada membro
-    public string[] instructionTexts = {
-        "Levante o braço esquerdo",
-        "Levante o braço direito",
-        "Mexa a perna esquerda",
-        "Mexa a perna direita"
-    };
+    [Header("Referência ao Avatar")]
+    public Transform avatar;  // O Avatar está nas coordenadas (2,0,0)
 
-    [Header("Referências do Avatar")]
-    public Transform avatar;
+    [Header("Cubos Invisíveis")]
+    public GameObject cubePrefab;
+    private GameObject armLeftCube, armRightCube, legLeftCube, legRightCube;
 
     [Header("UI")]
-    public Text instructionText;
-    public Text feedbackText;
+    public Text messageText;
 
     private int currentStep = 0;
+    private string[] movementSteps = { "Levante o braço esquerdo", "Levante o braço direito", "Mova-se para a esquerda", "Mova-se para a direita" };
 
     void Start()
     {
-        feedbackText.gameObject.SetActive(false);
-        UpdateInstruction();
-        ActivateTriggerCube();
+        if (messageText != null)
+        {
+            messageText.text = movementSteps[currentStep];
+        }
+
+        // Criar os 4 cubos invisíveis nas novas posições corretas
+        CreateTriggerCubes();
     }
 
-    void UpdateInstruction()
+    void CreateTriggerCubes()
     {
-        if (instructionText != null && currentStep < instructionTexts.Length)
-        {
-            instructionText.text = instructionTexts[currentStep];
-        }
+        // Definir posições fixas conforme especificado
+        Vector3 armLeftPos = new Vector3(1.042f, 1.82f, 0f);  // Braço esquerdo (acima)
+        Vector3 armRightPos = new Vector3(2.88f, 1.962f, 0f); // Braço direito (acima)
+        Vector3 legLeftPos = new Vector3(0.901f, 0.4f, 0f);   // Perna esquerda (lateral)
+        Vector3 legRightPos = new Vector3(3.08f, 0.4f, 0f);  // Perna direita (lateral)
+
+        // Criar cubos invisíveis nas novas posições
+        armLeftCube = Instantiate(cubePrefab, armLeftPos, Quaternion.identity);
+        armRightCube = Instantiate(cubePrefab, armRightPos, Quaternion.identity);
+        legLeftCube = Instantiate(cubePrefab, legLeftPos, Quaternion.identity);
+        legRightCube = Instantiate(cubePrefab, legRightPos, Quaternion.identity);
+
+        // Configurar os cubos
+        SetupTriggerCube(armLeftCube, "TriggerCube_ArmLeft");
+        SetupTriggerCube(armRightCube, "TriggerCube_ArmRight");
+        SetupTriggerCube(legLeftCube, "TriggerCube_LegLeft");
+        SetupTriggerCube(legRightCube, "TriggerCube_LegRight");
+
+        // Apenas o primeiro cubo fica ativo no início
+        armLeftCube.SetActive(true);
+        armRightCube.SetActive(false);
+        legLeftCube.SetActive(false);
+        legRightCube.SetActive(false);
     }
 
-    void ActivateTriggerCube()
+    void SetupTriggerCube(GameObject cube, string name)
     {
-        // Desativa todos os cubos primeiro
-        foreach (var cube in triggerCubes)
+        cube.name = name;
+        cube.tag = "TriggerCube";
+
+        // Tornar invisível
+        Renderer cubeRenderer = cube.GetComponent<Renderer>();
+        if (cubeRenderer != null)
         {
-            cube.SetActive(false);
+            cubeRenderer.enabled = false; // Oculta o visual do cubo
         }
 
-        // Ativa apenas o cubo do movimento atual
-        if (currentStep < triggerCubes.Length)
+        // Garantir que não caia nem se mova
+        Rigidbody rb = cube.GetComponent<Rigidbody>();
+        if (rb == null)
         {
-            triggerCubes[currentStep].SetActive(true);
+            rb = cube.AddComponent<Rigidbody>();
         }
+        rb.isKinematic = true; // Mantém o cubo fixo no espaço
+
+        // Adicionar um BoxCollider se não houver
+        BoxCollider collider = cube.GetComponent<BoxCollider>();
+        if (collider == null)
+        {
+            collider = cube.AddComponent<BoxCollider>();
+        }
+        collider.isTrigger = true;
     }
 
-    public void MovementRecognized()
+public void MovementRecognized(string movement)
+{
+    Debug.Log(movement + " reconhecido!");
+
+    if (messageText != null)
     {
-        StartCoroutine(ShowFeedbackAndNextStep());
+        messageText.text = "Muito bem!";
     }
 
-    IEnumerator ShowFeedbackAndNextStep()
+    // Avança para o próximo passo
+    currentStep++;
+
+    // Ativar o próximo cubo e desativar o atual
+    if (currentStep == 1)
     {
-        feedbackText.text = "Muito bem!";
-        feedbackText.gameObject.SetActive(true);
-        yield return new WaitForSeconds(1f); // Mostra a mensagem por 1 segundo
-        feedbackText.gameObject.SetActive(false);
-
-        currentStep++;
-        if (currentStep < instructionTexts.Length)
-        {
-            UpdateInstruction();
-            ActivateTriggerCube();
-        }
-        else
-        {
-            instructionText.text = "Nível concluído!";
-        }
+        armLeftCube.SetActive(false);
+        armRightCube.SetActive(true);
+        messageText.text = movementSteps[currentStep]; // Atualiza a mensagem
     }
+    else if (currentStep == 2)
+    {
+        armRightCube.SetActive(false);
+        legLeftCube.SetActive(true);
+        messageText.text = movementSteps[currentStep];
+    }
+    else if (currentStep == 3)
+    {
+        legLeftCube.SetActive(false);
+        legRightCube.SetActive(true);
+        messageText.text = movementSteps[currentStep];
+    }
+    else if (currentStep >= 4) // Quando termina todos os passos
+    {
+        legRightCube.SetActive(false);
+        messageText.text = "Treino Concluído!";
+    }
+}
+
 }
