@@ -60,11 +60,11 @@ public class Level0Manager : MonoBehaviour
         cube.tag = "TriggerCube";
 
         // Tornar invisível
-        Renderer cubeRenderer = cube.GetComponent<Renderer>();
+        /*Renderer cubeRenderer = cube.GetComponent<Renderer>();
         if (cubeRenderer != null)
         {
             cubeRenderer.enabled = false; // Oculta o visual do cubo
-        }
+        }*/
 
         // Garantir que não caia nem se mova
         Rigidbody rb = cube.GetComponent<Rigidbody>();

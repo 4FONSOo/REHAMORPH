@@ -37,7 +37,7 @@ public class LevelManager : MonoBehaviour
             if (timerText != null)
             {
                 TimeSpan timeSpan = TimeSpan.FromSeconds(timer);
-                timerText.text = string.Format("{0:D2}:{1:D2}:{2:D2}", timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds);
+                timerText.text = string.Format("Tempo: {0:D2}:{1:D2}:{2:D2}", timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds);
             }
         }
     }
@@ -66,7 +66,7 @@ public class LevelManager : MonoBehaviour
     void UpdateScoreUI()
     {
         if (scoreText != null)
-            scoreText.text = "Score: " + score;
+            scoreText.text = "Pontuação: " + score;
     }
 
     void SpawnCube()
