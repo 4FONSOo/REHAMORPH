@@ -33,7 +33,7 @@ public class ButtonScritpt : MonoBehaviour
 
     public void Nivel1()
     {
-        LoadSceneAndSave(0);
+        LoadSceneAndSave(2);
     }
 
     public void Nivel0()
@@ -43,7 +43,7 @@ public class ButtonScritpt : MonoBehaviour
 
     public void Menu()
     {
-        LoadSceneAndSave(2);
+        LoadSceneAndSave(0);
     }
 
     public void GoBack()
@@ -59,6 +59,12 @@ public class ButtonScritpt : MonoBehaviour
         {
             Debug.Log("Nenhuma cena anterior no histórico!");
         }
+    }
+
+    public void QuitGame()
+    {
+        Debug.Log("QUIT");
+        Application.Quit();
     }
 
 }
