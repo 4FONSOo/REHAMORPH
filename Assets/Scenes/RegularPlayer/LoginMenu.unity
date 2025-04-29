@@ -546,7 +546,7 @@ GameObject:
   - component: {fileID: 71322172}
   - component: {fileID: 71322171}
   m_Layer: 5
-  m_Name: LoginButton (1)
+  m_Name: ConfirmarButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1281,9 +1281,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 663852379}
-        m_TargetAssemblyTypeName: game_dataScript, Assembly-CSharp
-        m_MethodName: LoginUser
+      - m_Target: {fileID: 1080774683}
+        m_TargetAssemblyTypeName: MainMenu, Assembly-CSharp
+        m_MethodName: 
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1546,7 +1546,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1330765844}
+      - m_Target: {fileID: 663852376}
         m_TargetAssemblyTypeName: MainMenu, Assembly-CSharp
         m_MethodName: GoRegister
         m_Mode: 1
@@ -1793,7 +1793,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 663852380}
-  - component: {fileID: 663852379}
   - component: {fileID: 663852378}
   - component: {fileID: 663852377}
   - component: {fileID: 663852376}
@@ -1869,27 +1868,6 @@ MonoBehaviour:
   inputFields:
   - {fileID: 12202797}
   - {fileID: 609458667}
---- !u!114 &663852379
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 663852374}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c07ab5e2c1223a543b4dc66941194cee, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  nomeInput: {fileID: 0}
-  idadeInput: {fileID: 0}
-  pesoInput: {fileID: 0}
-  alturaInput: {fileID: 0}
-  emailInput: {fileID: 0}
-  passwordInput: {fileID: 0}
-  loginEmailInput: {fileID: 12202797}
-  loginPasswordInput: {fileID: 609458667}
-  feedbackText: {fileID: 2101879975}
 --- !u!4 &663852380
 Transform:
   m_ObjectHideFlags: 0
@@ -2375,6 +2353,113 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Padding: {x: -8, y: -5, z: -8, w: -5}
   m_Softness: {x: 0, y: 0}
+--- !u!1 &1080774683
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1080774684}
+  - component: {fileID: 1080774687}
+  - component: {fileID: 1080774686}
+  - component: {fileID: 1080774685}
+  - component: {fileID: 1080774688}
+  - component: {fileID: 1080774689}
+  m_Layer: 0
+  m_Name: FireBaseLogin
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1080774684
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1080774683}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 992.3003, y: 542.0932, z: -31.143661}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1080774685
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1080774683}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e5ea4b73acffe04a8894cd00645a5bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1080774686
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1080774683}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6abfb6a7b1d765a4b90274b0b230ac55, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  professionalSceneName: ProfessionalScene
+  patientSceneName: PatientScene
+  dbManager: {fileID: 1080774685}
+--- !u!114 &1080774687
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1080774683}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88d11f7fe4f66694c9e13a593e6b0970, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  screenManager: {fileID: 1080774686}
+  emailSender: {fileID: 1080774688}
+--- !u!114 &1080774688
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1080774683}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30c9659857b4fae49911841b737409b1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1080774689
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1080774683}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a474e036564e1f64a85c557300573c4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  emailField: {fileID: 12202797}
+  passwordField: {fileID: 609458667}
+  loginButton: {fileID: 310874120}
+  goToRegisterButton: {fileID: 580467519}
+  authManager: {fileID: 1080774687}
+  feedbackText: {fileID: 2101879975}
 --- !u!1 &1119909616
 GameObject:
   m_ObjectHideFlags: 0
@@ -2387,7 +2472,6 @@ GameObject:
   - component: {fileID: 1119909621}
   - component: {fileID: 1119909620}
   - component: {fileID: 1119909619}
-  - component: {fileID: 1119909618}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -2417,18 +2501,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
---- !u!114 &1119909618
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1119909616}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe136bb6cb5a046409af5746b3cbe686, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1119909619
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2706,7 +2778,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1119909618}
+      - m_Target: {fileID: 663852376}
         m_TargetAssemblyTypeName: MainMenu, Assembly-CSharp
         m_MethodName: GoToMainMenu
         m_Mode: 1
@@ -3791,3 +3863,4 @@ SceneRoots:
   - {fileID: 47269835}
   - {fileID: 1778043164}
   - {fileID: 663852380}
+  - {fileID: 1080774684}

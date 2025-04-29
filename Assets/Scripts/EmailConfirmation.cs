@@ -4,7 +4,7 @@ using System.Collections;
 
 public class EmailSender : MonoBehaviour
 {
-    // URL da API do Node.js (confirme que o endereço e a porta estão corretos)
+    // URL da API do Node.js
     private string apiUrl = "http://localhost:3000/send-confirmation";
 
     public void SendConfirmationEmail(string recipientEmail, string token)

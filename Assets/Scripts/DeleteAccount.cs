@@ -1,35 +1,26 @@
 using UnityEngine;
-using Mono.Data.Sqlite;
-using System.Data;
 using UnityEngine.SceneManagement;
-using System.IO;
 
 public class DeleteAccount : MonoBehaviour
 {
-    private string dbPath;
+    private DatabaseManager dbManager;
+    private FireBaseAuth authManager;
 
     void Start()
     {
-        // Caminho do banco de dados na pasta persistente
-        dbPath = Path.Combine(Application.persistentDataPath, "game_data.db");
-        CopyDatabaseIfNeeded();
-    }
-
-    void CopyDatabaseIfNeeded()
-    {
-        string sourcePath = Path.Combine(Application.streamingAssetsPath, "game_data.db");
-
-        if (!File.Exists(dbPath))
+        // Encontrar os componentes DatabaseManager e AuthManager na cena
+        dbManager = FindObjectOfType<DatabaseManager>();
+        if (dbManager == null)
         {
-            if (File.Exists(sourcePath))
-            {
-                File.Copy(sourcePath, dbPath);
-                Debug.Log("Banco de dados copiado para: " + dbPath);
-            }
-            else
-            {
-                Debug.LogError("ERRO: O banco de dados de origem não existe! Caminho: " + sourcePath);
-            }
+            Debug.LogError("DatabaseManager não encontrado na cena! Certifique-se de que está anexado a um GameObject.");
+            return;
+        }
+
+        authManager = FindObjectOfType<FireBaseAuth>();
+        if (authManager == null)
+        {
+            Debug.LogError("AuthManager não encontrado na cena! Certifique-se de que está anexado a um GameObject.");
+            return;
         }
     }
 
@@ -43,48 +34,59 @@ public class DeleteAccount : MonoBehaviour
             return;
         }
 
-        if (!File.Exists(dbPath))
+        string loggedInEmail = PlayerPrefs.GetString("loggedInUser");
+        string loggedInUserId = PlayerPrefs.GetString("loggedInUserId");
+
+        if (string.IsNullOrEmpty(loggedInUserId))
         {
-            Debug.LogError("Erro: O banco de dados não existe!");
+            Debug.LogWarning("UserId do usuário logado não encontrado!");
             return;
         }
 
-        string loggedInEmail = PlayerPrefs.GetString("loggedInUser");
-        string dbName = "URI=file:" + dbPath;
-
-        using (var connection = new SqliteConnection(dbName))
-        {
-            try
+        // Remover os dados do usuário do Firebase Realtime Database
+        Debug.Log($"Removendo dados do usuário no caminho 'users/{loggedInUserId}'...");
+        Firebase.Database.FirebaseDatabase.DefaultInstance.RootReference
+            .Child("users")
+            .Child(loggedInUserId)
+            .RemoveValueAsync()
+            .ContinueWith(task =>
             {
-                connection.Open();
-                using (var command = connection.CreateCommand())
+                if (task.IsFaulted)
                 {
-                    command.CommandText = "DELETE FROM player WHERE email = @loggedInEmail;";
-                    command.Parameters.AddWithValue("@loggedInEmail", loggedInEmail);
-                    int rowsAffected = command.ExecuteNonQuery();
-
-                    if (rowsAffected > 0)
-                    {
-                        Debug.Log("Conta eliminada com sucesso para o email: " + loggedInEmail);
-                        PlayerPrefs.DeleteKey("loggedInUser");
-                        PlayerPrefs.Save();
-                        SceneManager.LoadScene(2); 
-                    }
-                    else
-                    {
-                        Debug.LogWarning("Conta não encontrada ou já eliminada.");
-                    }
+                    Debug.LogError($"Erro ao remover dados do usuário: {task.Exception}");
+                    return;
                 }
-            }
-            catch (System.Exception e)
-            {
-                Debug.LogError("Erro ao tentar eliminar conta: " + e.Message);
-            }
-            finally
-            {
-                connection.Close();
-                Debug.Log("Conexão com a BD fechada após tentativa de eliminação.");
-            }
+
+                if (task.IsCompleted)
+                {
+                    Debug.Log("Dados do usuário removidos com sucesso do Firebase Realtime Database!");
+                }
+            });
+
+        // Excluir a conta do usuário no Firebase Authentication
+        var firebaseUser = Firebase.Auth.FirebaseAuth.DefaultInstance.CurrentUser;
+        if (firebaseUser == null)
+        {
+            Debug.LogError("Nenhum usuário autenticado encontrado!");
+            return;
         }
+
+        firebaseUser.DeleteAsync().ContinueWith(task =>
+        {
+            if (task.IsFaulted)
+            {
+                Debug.LogError($"Erro ao excluir conta do Firebase Authentication: {task.Exception}");
+                return;
+            }
+
+            if (task.IsCompleted)
+            {
+                Debug.Log("Conta excluída com sucesso do Firebase Authentication!");
+                PlayerPrefs.DeleteKey("loggedInUser");
+                PlayerPrefs.DeleteKey("loggedInUserId");
+                PlayerPrefs.Save();
+                SceneManager.LoadScene(2); // Redirecionar para a tela de login
+            }
+        });
     }
 }

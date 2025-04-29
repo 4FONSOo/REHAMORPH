@@ -1,0 +1,22 @@
+{
+    "project_info": {
+      "project_id": "rehamorph",
+      "project_number": "REHAMORPH",
+      "firebase_url": "https://rehamorph-default-rtdb.firebaseio.com"
+    },
+    "client": [
+      {
+        "client_info": {
+          "mobilesdk_app_id": "319553981316",
+          "android_client_info": {
+            "package_name": "com.example.rehamorph"
+          }
+        },
+        "api_key": [
+          {
+            "current_key": "AIzaSyCvwLa1S_L84dOiy_IUu4z-7GBvUO-Bf74"
+          }
+        ]
+      }
+    ]
+  }

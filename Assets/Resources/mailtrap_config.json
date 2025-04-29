@@ -1,0 +1,10 @@
+{
+    "mailtrap": {
+      "smtpHost": "sandbox.smtp.mailtrap.io",
+      "smtpPort": 465,
+      "smtpUsername": "4b9ee014ca615f",
+      "smtpPassword": "a3ebdfd21db39c",
+      "fromEmail": "mailtrap@demomailtrap.com",
+      "fromName": "RehaMorph"
+    }
+  }

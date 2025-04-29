@@ -321,12 +321,13 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 274838512}
-  - component: {fileID: 274838509}
   - component: {fileID: 274838511}
   - component: {fileID: 274838510}
   - component: {fileID: 274838508}
   - component: {fileID: 274838513}
-  - component: {fileID: 274838514}
+  - component: {fileID: 274838515}
+  - component: {fileID: 274838516}
+  - component: {fileID: 274838517}
   m_Layer: 0
   m_Name: ScriptToken
   m_TagString: Untagged
@@ -346,27 +347,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe136bb6cb5a046409af5746b3cbe686, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &274838509
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 274838506}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c07ab5e2c1223a543b4dc66941194cee, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  nomeInput: {fileID: 0}
-  idadeInput: {fileID: 0}
-  pesoInput: {fileID: 0}
-  alturaInput: {fileID: 0}
-  emailInput: {fileID: 0}
-  passwordInput: {fileID: 0}
-  loginEmailInput: {fileID: 0}
-  loginPasswordInput: {fileID: 0}
-  feedbackText: {fileID: 1387791226}
 --- !u!114 &274838510
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -428,7 +408,20 @@ MonoBehaviour:
   tokenInput: {fileID: 904762679}
   validateButton: {fileID: 2016867984}
   feedbackText: {fileID: 1387791226}
---- !u!114 &274838514
+  dbManager: {fileID: 274838515}
+--- !u!114 &274838515
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 274838506}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e5ea4b73acffe04a8894cd00645a5bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &274838516
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -440,6 +433,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 30c9659857b4fae49911841b737409b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &274838517
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 274838506}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88d11f7fe4f66694c9e13a593e6b0970, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  screenManager: {fileID: 0}
+  emailSender: {fileID: 274838516}
 --- !u!1 &279747537
 GameObject:
   m_ObjectHideFlags: 0
@@ -2735,10 +2742,10 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 274838509}
-        m_TargetAssemblyTypeName: GameDataScript, Assembly-CSharp
-        m_MethodName: ConfirmEmail
-        m_Mode: 5
+      - m_Target: {fileID: 274838508}
+        m_TargetAssemblyTypeName: MainMenu, Assembly-CSharp
+        m_MethodName: GoToLogin
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine

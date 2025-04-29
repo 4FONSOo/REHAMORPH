@@ -125,7 +125,7 @@ public class GameDataScript : MonoBehaviour
                     int rowsAffected = command.ExecuteNonQuery();
                     if (rowsAffected > 0)
                     {
-                        ShowFeedback("Conta criada! Enviando e-mail de confirmação...", true);
+                        ShowFeedback("Conta criada! A enviar e-mail de confirmação...", true);
                         // Envia o e-mail e aguarda para avançar
                         StartCoroutine(SendEmailAndAdvance(userEmail, confirmationToken));
                     }
