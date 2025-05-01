@@ -4,9 +4,28 @@ using UnityEngine;
 
 public class FirebaseInitializer : MonoBehaviour
 {
+    private static FirebaseInitializer instance;
+    public bool IsFirebaseInitialized { get; private set; } = false;
+
+    void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(gameObject);
+            Debug.Log("FirebaseInitializer: Instância criada e marcada como DontDestroyOnLoad.");
+        }
+        else
+        {
+            Debug.Log("FirebaseInitializer: Instância já existe. Destruindo duplicata.");
+            Destroy(gameObject);
+            return;
+        }
+    }
+
     void Start()
     {
-        DontDestroyOnLoad(gameObject);
+        Debug.Log("FirebaseInitializer: Iniciando a inicialização do Firebase...");
 
         FirebaseApp.Create(new AppOptions
         {
@@ -17,13 +36,15 @@ public class FirebaseInitializer : MonoBehaviour
         {
             if (task.IsFaulted)
             {
-                Debug.LogError($"Erro ao verificar dependências do Firebase: {task.Exception}");
+                Debug.LogError($"FirebaseInitializer: Erro ao verificar dependências do Firebase: {task.Exception}");
+                IsFirebaseInitialized = false;
                 return;
             }
 
             if (task.IsCanceled)
             {
-                Debug.LogError("Verificação de dependências do Firebase foi cancelada.");
+                Debug.LogError("FirebaseInitializer: Verificação de dependências do Firebase foi cancelada.");
+                IsFirebaseInitialized = false;
                 return;
             }
 
@@ -31,11 +52,13 @@ public class FirebaseInitializer : MonoBehaviour
             if (dependencyStatus == DependencyStatus.Available)
             {
                 FirebaseApp app = FirebaseApp.DefaultInstance;
-                Debug.Log("Firebase inicializado com sucesso!");
+                Debug.Log("FirebaseInitializer: Firebase inicializado com sucesso!");
+                IsFirebaseInitialized = true;
             }
             else
             {
-                Debug.LogError($"Erro ao inicializar Firebase: {dependencyStatus}");
+                Debug.LogError($"FirebaseInitializer: Erro ao inicializar Firebase: {dependencyStatus}");
+                IsFirebaseInitialized = false;
             }
         });
     }

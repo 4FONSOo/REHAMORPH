@@ -1731,7 +1731,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_IgnoreReversedGraphics: 1
+  m_IgnoreReversedGraphics: 0
   m_BlockingObjects: 0
   m_BlockingMask:
     serializedVersion: 2
@@ -1820,6 +1820,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ResolutionDropdown: {fileID: 1071848091}
   QualityDropdown: {fileID: 1997304957}
+  editProfileButton: {fileID: 1531347719}
+  backButton: {fileID: 1968441536}
 --- !u!114 &615878914
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -133,7 +133,7 @@ GameObject:
   - component: {fileID: 181617473}
   - component: {fileID: 181617474}
   m_Layer: 5
-  m_Name: LoginMenu
+  m_Name: TokenMenu
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -322,12 +322,12 @@ GameObject:
   m_Component:
   - component: {fileID: 274838512}
   - component: {fileID: 274838511}
-  - component: {fileID: 274838510}
   - component: {fileID: 274838508}
   - component: {fileID: 274838513}
   - component: {fileID: 274838515}
-  - component: {fileID: 274838516}
+  - component: {fileID: 274838518}
   - component: {fileID: 274838517}
+  - component: {fileID: 274838516}
   m_Layer: 0
   m_Name: ScriptToken
   m_TagString: Untagged
@@ -347,23 +347,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe136bb6cb5a046409af5746b3cbe686, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &274838510
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 274838506}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a91aa011c0689c64cb0cfd3b892bf8c3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  inputFields:
-  - inputField: {fileID: 904762679}
-    placeholder: {fileID: 1318835042}
-    defaultText: 
-    isBlinking: 0
 --- !u!114 &274838511
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -408,7 +391,6 @@ MonoBehaviour:
   tokenInput: {fileID: 904762679}
   validateButton: {fileID: 2016867984}
   feedbackText: {fileID: 1387791226}
-  dbManager: {fileID: 274838515}
 --- !u!114 &274838515
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -430,9 +412,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 274838506}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 30c9659857b4fae49911841b737409b1, type: 3}
+  m_Script: {fileID: 11500000, guid: 6abfb6a7b1d765a4b90274b0b230ac55, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  userSceneName: UserScene
+  dbManager: {fileID: 274838515}
 --- !u!114 &274838517
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -445,8 +429,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88d11f7fe4f66694c9e13a593e6b0970, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  screenManager: {fileID: 0}
-  emailSender: {fileID: 274838516}
+  screenManager: {fileID: 274838516}
+  emailSender: {fileID: 274838518}
+--- !u!114 &274838518
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 274838506}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30c9659857b4fae49911841b737409b1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &279747537
 GameObject:
   m_ObjectHideFlags: 0
@@ -2742,9 +2738,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 274838508}
-        m_TargetAssemblyTypeName: MainMenu, Assembly-CSharp
-        m_MethodName: GoToLogin
+      - m_Target: {fileID: 274838513}
+        m_TargetAssemblyTypeName: TokenValidation, Assembly-CSharp
+        m_MethodName: OnValidateButtonClicked
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2754,13 +2750,13 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 274838513}
+      - m_Target: {fileID: 274838506}
         m_TargetAssemblyTypeName: TokenValidation, Assembly-CSharp
-        m_MethodName: OnValidateButtonClicked
+        m_MethodName: 
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_ObjectArgumentAssemblyTypeName: 
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 

@@ -2,111 +2,207 @@
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class TokenValidation : MonoBehaviour
 {
-    public TMP_InputField tokenInput;    // Campo onde o usuário insere o token
-    public Button validateButton;        // Botão "Validar"
-    public TMP_Text feedbackText;        // Texto para exibir mensagens na tela
-    public DatabaseManager dbManager;    // Referência ao DatabaseManager
+    public TMP_InputField tokenInput;
+    public Button validateButton;
+    public TMP_Text feedbackText;
+    private DatabaseManager dbManager;
+    private FirebaseInitializer firebaseInitializer;
+    private bool isActive = true;
+    private bool isFirebaseReady = false;
+
+    void Awake()
+    {
+        Debug.Log("TokenValidation: Awake chamado.");
+    }
 
     void Start()
     {
-        // Validações iniciais
+        Debug.Log("TokenValidation: Inicializando...");
+
+        // Tenta encontrar o FirebaseInitializer
+        firebaseInitializer = FindObjectOfType<FirebaseInitializer>();
+        if (firebaseInitializer == null)
+        {
+            Debug.LogError("TokenValidation: FirebaseInitializer não encontrado na cena! Certifique-se de que ele está na cena 0 e usa DontDestroyOnLoad.");
+            StartCoroutine(UpdateFeedback("Erro: FirebaseInitializer não encontrado!", false));
+            return;
+        }
+
+        // Tenta encontrar o DatabaseManager
+        dbManager = FindObjectOfType<DatabaseManager>();
+
+        // Verificações de inicialização
         if (validateButton == null)
         {
-            Debug.LogError("validateButton não foi atribuído no Inspector!");
+            Debug.LogError("TokenValidation: validateButton não foi atribuído no Inspector! Atribua o botão 'Validar' no Inspector.");
             return;
         }
         if (tokenInput == null)
         {
-            Debug.LogError("tokenInput não foi atribuído no Inspector!");
+            Debug.LogError("TokenValidation: tokenInput não foi atribuído no Inspector! Atribua o campo de entrada de token no Inspector.");
             return;
         }
         if (feedbackText == null)
         {
-            Debug.LogError("feedbackText não foi atribuído no Inspector!");
+            Debug.LogError("TokenValidation: feedbackText não foi atribuído no Inspector! Atribua o texto de feedback no Inspector.");
             return;
         }
         if (dbManager == null)
         {
-            Debug.LogError("dbManager não foi atribuído no Inspector! Certifique-se de que o DatabaseManager está anexado ao GameObject.");
+            Debug.LogError("TokenValidation: DatabaseManager não encontrado na cena! Certifique-se de que foi instanciado na cena 0 e usa DontDestroyOnLoad.");
+            StartCoroutine(UpdateFeedback("Erro: DatabaseManager não encontrado!", false));
+            validateButton.interactable = false;
             return;
         }
 
-        feedbackText.text = "Insira o token e clique em 'Validar'.";
+        Debug.Log("TokenValidation: Todos os componentes foram inicializados corretamente.");
+
+        // Configurar o listener do botão
+        validateButton.onClick.RemoveAllListeners();
         validateButton.onClick.AddListener(OnValidateButtonClicked);
+        validateButton.interactable = true;
+        Debug.Log("TokenValidation: Listener do botão 'Validar' configurado com sucesso.");
+
+        // Aguardar a inicialização do Firebase
+        StartCoroutine(WaitForFirebaseInitialization());
+    }
+
+    private IEnumerator WaitForFirebaseInitialization()
+    {
+        Debug.Log("TokenValidation: Aguardando inicialização do Firebase...");
+        while (!firebaseInitializer.IsFirebaseInitialized)
+        {
+            yield return new WaitForSeconds(0.1f);
+        }
+
+        Debug.Log("TokenValidation: Firebase inicializado com sucesso.");
+        isFirebaseReady = true;
+        StartCoroutine(UpdateFeedback("Insira o token e clique em 'Validar'.", true));
+    }
+
+    void OnEnable()
+    {
+        Debug.Log("TokenValidation: OnEnable chamado.");
+        if (validateButton != null)
+        {
+            validateButton.onClick.RemoveAllListeners();
+            validateButton.onClick.AddListener(OnValidateButtonClicked);
+            validateButton.interactable = true;
+            Debug.Log("TokenValidation: Listener do botão 'Validar' reconfigurado no OnEnable.");
+        }
+    }
+
+    void OnDestroy()
+    {
+        isActive = false;
+        Debug.Log("TokenValidation: Destruído.");
     }
 
     public void OnValidateButtonClicked()
     {
-        if (tokenInput == null)
+        Debug.Log("TokenValidation: Botão 'Validar' clicado.");
+
+        if (!isFirebaseReady)
         {
-            Debug.LogError("tokenInput não foi atribuído!");
+            Debug.LogError("TokenValidation: Firebase ainda não está inicializado! Tente novamente em alguns segundos.");
+            StartCoroutine(UpdateFeedback("Erro: Firebase ainda não inicializado!", false));
             return;
         }
 
-        string token = tokenInput.text.Trim(); // Remover espaços em branco
-        Debug.Log("Token inserido: " + token);
+        if (tokenInput == null)
+        {
+            Debug.LogError("TokenValidation: tokenInput não foi atribuído durante o clique!");
+            StartCoroutine(UpdateFeedback("Erro: Campo de token não atribuído!", false));
+            return;
+        }
+
+        string token = tokenInput.text.Trim();
+        Debug.Log($"TokenValidation: Token inserido pelo usuário: {token}");
 
         if (string.IsNullOrEmpty(token))
         {
-            UpdateFeedback("Por favor, insira um token.", false);
+            Debug.LogWarning("TokenValidation: Token está vazio.");
+            StartCoroutine(UpdateFeedback("Por favor, insira um token.", false));
             return;
         }
 
-        Debug.Log("Verificando token no Firebase...");
+        Debug.Log("TokenValidation: Iniciando verificação do token no Firebase...");
+        StartCoroutine(UpdateFeedback("Verificando token...", true));
         ConfirmEmail(token);
     }
 
     private void ConfirmEmail(string token)
     {
-        Debug.Log($"Chamando VerifyConfirmationToken com token: {token}");
+        Debug.Log($"TokenValidation: Chamando VerifyConfirmationToken com token: {token}");
+
+        if (dbManager == null)
+        {
+            Debug.LogError("TokenValidation: DatabaseManager é null durante a verificação do token!");
+            StartCoroutine(UpdateFeedback("Erro: DatabaseManager não encontrado!", false));
+            return;
+        }
+
         dbManager.VerifyConfirmationToken(token, (userId) =>
         {
-            Debug.Log($"Resultado do VerifyConfirmationToken: userId = {userId}");
+            Debug.Log($"TokenValidation: Callback de sucesso chamado. Resultado do VerifyConfirmationToken: userId = {userId}");
 
             if (userId != null)
             {
-                Debug.Log($"Token válido. Atualizando confirmação para o usuário {userId}...");
-                // Token válido, marcar o usuário como confirmado
+                Debug.Log($"TokenValidation: Token válido. Atualizando confirmação para o usuário {userId}...");
                 dbManager.UpdateUserConfirmation(userId, true, () =>
                 {
-                    Debug.Log("Usuário marcado como confirmado com sucesso.");
-                    // Opcional: remover o token após validação
+                    Debug.Log("TokenValidation: Usuário marcado como confirmado com sucesso.");
                     dbManager.RemoveConfirmationToken(token, () =>
                     {
-                        Debug.Log("Token removido com sucesso.");
+                        Debug.Log("TokenValidation: Token removido com sucesso.");
                     }, (error) =>
                     {
-                        Debug.LogWarning($"Erro ao remover o token: {error}");
+                        Debug.LogWarning($"TokenValidation: Erro ao remover o token: {error}");
+                        StartCoroutine(UpdateFeedback($"Erro ao remover o token: {error}", false));
                     });
 
-                    UpdateFeedback("E-mail confirmado com sucesso! Você pode fazer login.", true);
-                    Debug.Log("Redirecionando para a tela de login (cena 2)...");
+                    StartCoroutine(UpdateFeedback("E-mail confirmado com sucesso! Você pode fazer login.", true));
+                    Debug.Log("TokenValidation: Redirecionando para a tela de login (cena 2)...");
                     SceneManager.LoadScene(2);
                 }, (error) =>
                 {
-                    UpdateFeedback($"Erro ao atualizar a confirmação: {error}", false);
+                    Debug.LogError($"TokenValidation: Erro ao atualizar a confirmação: {error}");
+                    StartCoroutine(UpdateFeedback($"Erro ao atualizar a confirmação: {error}", false));
                 });
             }
             else
             {
-                UpdateFeedback("Token inválido ou expirado.", false);
+                Debug.LogWarning("TokenValidation: Token inválido ou não encontrado.");
+                StartCoroutine(UpdateFeedback("Token inválido ou expirado.", false));
             }
         }, (error) =>
         {
-            UpdateFeedback($"Erro ao verificar o token: {error}", false);
+            Debug.LogError($"TokenValidation: Erro retornado pelo VerifyConfirmationToken: {error}");
+            StartCoroutine(UpdateFeedback($"Erro ao verificar o token: {error}", false));
         });
     }
 
-    void UpdateFeedback(string message, bool isSuccess)
+    private IEnumerator UpdateFeedback(string message, bool isSuccess)
     {
-        if (feedbackText != null)
+        if (feedbackText == null || !isActive)
         {
-            feedbackText.text = message;
-            feedbackText.color = isSuccess ? Color.blue : Color.red;
+            Debug.LogWarning("TokenValidation: FeedbackText é null ou o script não está ativo. Cancelando UpdateFeedback.");
+            yield break;
         }
-        Debug.Log(message);
+
+        Debug.Log($"TokenValidation: Exibindo feedback: {message} (isSuccess: {isSuccess})");
+        feedbackText.text = message;
+        feedbackText.color = isSuccess ? new Color(0f, 0.5f, 0f) : Color.red;
+        yield return new WaitForSeconds(3f);
+
+        if (feedbackText != null && isActive)
+        {
+            feedbackText.text = "";
+            Debug.Log("TokenValidation: Feedback limpo após 3 segundos.");
+        }
     }
 }

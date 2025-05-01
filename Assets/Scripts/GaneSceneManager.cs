@@ -33,6 +33,6 @@ public class GameSceneManager : MonoBehaviour
     void OnGoToSettingsButtonClicked()
     {
         Debug.Log("Redirecionando para a cena de definições...");
-        SceneManager.LoadScene(11); // Substitua pelo índice da sua cena de definições
+        SceneManager.LoadScene(10); // Substitua pelo índice da sua cena de definições
     }
 }

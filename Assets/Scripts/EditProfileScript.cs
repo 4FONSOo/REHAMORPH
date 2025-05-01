@@ -4,184 +4,273 @@ using TMPro;
 using UnityEngine.SceneManagement;
 using Firebase.Auth;
 using Firebase.Extensions;
+using System.Collections;
 
 public class EditProfile : MonoBehaviour
 {
     public TMP_InputField editNomeInput;
-    public TMP_InputField editPasswordInput;
+    public TMP_InputField editIdadeInput;
+    public TMP_InputField editAlturaInput;
+    public TMP_InputField editPesoInput;
     public TMP_InputField editEmailInput;
+    public TMP_InputField editPasswordInput;
     public TMP_Text feedbackText;
     public Button saveButton;
     public Button cancelButton;
     public Button logoutButton;
+    public Button deleteAccountButton;
 
     private string loggedInUserId;
     private string loggedInEmail;
     private DatabaseManager dbManager;
     private FireBaseAuth authManager;
+    private DeleteAccount deleteAccountManager;
+    private bool isActive = true;
 
     void Start()
     {
+        Debug.Log("EditProfile: Inicializando...");
+
+        // Tenta encontrar os managers
         dbManager = FindObjectOfType<DatabaseManager>();
+        authManager = FindObjectOfType<FireBaseAuth>();
+        deleteAccountManager = FindObjectOfType<DeleteAccount>();
+
+        // Verificações de inicialização
         if (dbManager == null)
         {
-            Debug.LogError("DatabaseManager não encontrado na cena! Certifique-se de que está anexado a um GameObject.");
-            UpdateFeedback("Erro: DatabaseManager não encontrado!", false);
+            Debug.LogError("EditProfile: DatabaseManager não encontrado na cena!");
+            StartCoroutine(UpdateFeedback("Erro: DatabaseManager não encontrado!", false));
+            DisableButtons();
             return;
         }
 
-        authManager = FindObjectOfType<FireBaseAuth>();
         if (authManager == null)
         {
-            Debug.LogError("AuthManager não encontrado na cena! Certifique-se de que está anexado a um GameObject.");
-            UpdateFeedback("Erro: AuthManager não encontrado!", false);
+            Debug.LogError("EditProfile: AuthManager não encontrado na cena!");
+            StartCoroutine(UpdateFeedback("Erro: AuthManager não encontrado!", false));
+            DisableButtons();
             return;
         }
 
-        if (editNomeInput == null || editEmailInput == null || editPasswordInput == null)
+        if (deleteAccountManager == null)
         {
-            Debug.LogError("Um ou mais campos de entrada (TMP_InputField) não foram atribuídos no Inspector!");
-            UpdateFeedback("Erro: Campos de entrada não atribuídos!", false);
+            Debug.LogError("EditProfile: DeleteAccount não encontrado na cena!");
+            StartCoroutine(UpdateFeedback("Erro: DeleteAccount não encontrado!", false));
+            DisableButtons();
+            return;
+        }
+
+        // Verifica se os campos de entrada estão atribuídos
+        if (editNomeInput == null || editIdadeInput == null || editAlturaInput == null || editPesoInput == null || editEmailInput == null || editPasswordInput == null)
+        {
+            Debug.LogError("EditProfile: Um ou mais campos de entrada não foram atribuídos no Inspector!");
+            StartCoroutine(UpdateFeedback("Erro: Campos de entrada não atribuídos!", false));
+            DisableButtons();
             return;
         }
 
         if (feedbackText == null)
         {
-            Debug.LogError("FeedbackText não atribuído no EditProfile! Certifique-se de que está anexado a um GameObject na cena.");
-            UpdateFeedback("Erro: FeedbackText não atribuído!", false);
+            Debug.LogError("EditProfile: FeedbackText não atribuído!");
+            StartCoroutine(UpdateFeedback("Erro: FeedbackText não atribuído!", false));
+            DisableButtons();
             return;
         }
 
-        if (saveButton == null || cancelButton == null || logoutButton == null)
+        if (saveButton == null || cancelButton == null || logoutButton == null || deleteAccountButton == null)
         {
-            Debug.LogError("Um ou mais botões (saveButton, cancelButton, logoutButton) não foram atribuídos no Inspector!");
-            UpdateFeedback("Erro: Botões não atribuídos!", false);
+            Debug.LogError("EditProfile: Um ou mais botões não foram atribuídos no Inspector!");
+            StartCoroutine(UpdateFeedback("Erro: Botões não atribuídos!", false));
+            DisableButtons();
             return;
         }
 
+        Debug.Log("EditProfile: Todos os componentes foram inicializados corretamente.");
+
+        // Configura os tipos de entrada dos campos
         ConfigureInputFields();
+
+        // Configura os listeners dos botões
+        saveButton.onClick.RemoveAllListeners();
+        cancelButton.onClick.RemoveAllListeners();
+        logoutButton.onClick.RemoveAllListeners();
+        deleteAccountButton.onClick.RemoveAllListeners();
 
         saveButton.onClick.AddListener(SaveProfileChanges);
         cancelButton.onClick.AddListener(CancelProfileEdit);
         logoutButton.onClick.AddListener(Logout);
+        deleteAccountButton.onClick.AddListener(DeleteAccount);
 
-        if (PlayerPrefs.HasKey("loggedInUser"))
+        Debug.Log("EditProfile: Listeners dos botões configurados com sucesso.");
+
+        // Verifica se há um usuário logado
+        var currentUser = FirebaseAuth.DefaultInstance.CurrentUser;
+        if (currentUser != null)
+        {
+            loggedInEmail = currentUser.Email;
+            loggedInUserId = currentUser.UserId;
+            PlayerPrefs.SetString("loggedInUser", loggedInEmail);
+            PlayerPrefs.SetString("loggedInUserId", loggedInUserId);
+            PlayerPrefs.Save();
+            Debug.Log($"EditProfile: Usuário logado: Email={loggedInEmail}, UserId={loggedInUserId}");
+            StartCoroutine(UpdateFeedback("Bem-vindo, " + loggedInEmail + "!", true));
+        }
+        else if (PlayerPrefs.HasKey("loggedInUser") && PlayerPrefs.HasKey("loggedInUserId"))
         {
             loggedInEmail = PlayerPrefs.GetString("loggedInUser");
-            Debug.Log("Usuário logado: " + loggedInEmail);
-            UpdateFeedback("Bem-vindo, " + loggedInEmail + "!", true);
-        }
-        else
-        {
-            Debug.LogWarning("Nenhum utilizador está logado no PlayerPrefs! Verificando Firebase Authentication...");
-            UpdateFeedback("Verificando usuário logado...", true);
-            var currentUser = FirebaseAuth.DefaultInstance.CurrentUser;
-            if (currentUser != null)
-            {
-                loggedInEmail = currentUser.Email;
-                loggedInUserId = currentUser.UserId;
-                PlayerPrefs.SetString("loggedInUser", loggedInEmail);
-                PlayerPrefs.SetString("loggedInUserId", loggedInUserId);
-                PlayerPrefs.Save();
-                Debug.Log($"Usuário recuperado do Firebase Authentication: Email={loggedInEmail}, UserId={loggedInUserId}");
-                UpdateFeedback("Usuário recuperado com sucesso: " + loggedInEmail, true);
-            }
-            else
-            {
-                Debug.LogWarning("Nenhum utilizador está logado! Redirecionando para a tela de login.");
-                UpdateFeedback("Nenhum usuário logado. Redirecionando para o login...", false);
-                SceneManager.LoadScene(2);
-                return;
-            }
-        }
-
-        if (PlayerPrefs.HasKey("loggedInUserId"))
-        {
             loggedInUserId = PlayerPrefs.GetString("loggedInUserId");
-            Debug.Log("UserId do usuário logado: " + loggedInUserId);
+            Debug.Log($"EditProfile: Usuário recuperado do PlayerPrefs: Email={loggedInEmail}, UserId={loggedInUserId}");
+            StartCoroutine(UpdateFeedback("Bem-vindo, " + loggedInEmail + "!", true));
         }
         else
         {
-            Debug.LogWarning("UserId do usuário logado não encontrado no PlayerPrefs! Verificando Firebase Authentication...");
-            UpdateFeedback("Verificando ID do usuário...", true);
-            var currentUser = FirebaseAuth.DefaultInstance.CurrentUser;
-            if (currentUser != null)
-            {
-                loggedInUserId = currentUser.UserId;
-                PlayerPrefs.SetString("loggedInUserId", loggedInUserId);
-                PlayerPrefs.Save();
-                Debug.Log($"UserId recuperado do Firebase Authentication: {loggedInUserId}");
-                UpdateFeedback("ID do usuário recuperado com sucesso.", true);
-            }
-            else
-            {
-                Debug.LogWarning("UserId do usuário logado não encontrado! Redirecionando para a tela de login.");
-                UpdateFeedback("ID do usuário não encontrado. Redirecionando para o login...", false);
-                SceneManager.LoadScene(2);
-                return;
-            }
+            Debug.LogWarning("EditProfile: Nenhum usuário logado! Redirecionando para a tela de login.");
+            StartCoroutine(UpdateFeedback("Nenhum usuário logado. Redirecionando para o login...", false));
+            SceneManager.LoadScene(2);
+            return;
         }
 
+        // Carrega os dados do perfil
         LoadUserProfile();
+    }
+
+    void OnDestroy()
+    {
+        isActive = false;
+        Debug.Log("EditProfile: Destruído.");
     }
 
     private void ConfigureInputFields()
     {
         editNomeInput.contentType = TMP_InputField.ContentType.Standard;
+        editIdadeInput.contentType = TMP_InputField.ContentType.IntegerNumber;
+        editAlturaInput.contentType = TMP_InputField.ContentType.DecimalNumber;
+        editPesoInput.contentType = TMP_InputField.ContentType.DecimalNumber;
         editEmailInput.contentType = TMP_InputField.ContentType.EmailAddress;
         editPasswordInput.contentType = TMP_InputField.ContentType.Password;
 
         editNomeInput.ForceLabelUpdate();
+        editIdadeInput.ForceLabelUpdate();
+        editAlturaInput.ForceLabelUpdate();
+        editPesoInput.ForceLabelUpdate();
         editEmailInput.ForceLabelUpdate();
         editPasswordInput.ForceLabelUpdate();
+        Debug.Log("EditProfile: Campos de entrada configurados.");
+    }
+
+    private void DisableButtons()
+    {
+        if (saveButton != null) saveButton.interactable = false;
+        if (cancelButton != null) cancelButton.interactable = false;
+        if (logoutButton != null) logoutButton.interactable = false;
+        if (deleteAccountButton != null) deleteAccountButton.interactable = false;
+        Debug.Log("EditProfile: Botões desativados devido a erro de inicialização.");
     }
 
     public void LoadUserProfile()
     {
         if (string.IsNullOrEmpty(loggedInUserId) || string.IsNullOrEmpty(loggedInEmail))
         {
-            Debug.LogWarning("Erro ao carregar perfil: Dados do usuário logado ausentes!");
-            UpdateFeedback("Erro: Dados do usuário logado ausentes!", false);
+            Debug.LogWarning("EditProfile: Erro ao carregar perfil: Dados do usuário logado ausentes!");
+            StartCoroutine(UpdateFeedback("Erro: Dados do usuário logado ausentes!", false));
             return;
         }
 
-        editEmailInput.text = loggedInEmail;
-        Debug.Log($"Preenchendo e-mail: {loggedInEmail}");
+        // Limpa os campos antes de carregar os dados
+        editNomeInput.text = "";
+        editIdadeInput.text = "";
+        editAlturaInput.text = "";
+        editPesoInput.text = "";
+        editEmailInput.text = "";
+        editPasswordInput.text = "";
+        Debug.Log("EditProfile: Campos de entrada limpos antes de carregar os dados do perfil.");
 
+        Debug.Log($"EditProfile: Carregando perfil para userId: {loggedInUserId}");
         dbManager.GetUser(loggedInUserId, (user) =>
         {
             if (user != null)
             {
-                Debug.Log($"Dados do usuário carregados: Nome={user.nome}, Email={user.email}");
+                Debug.Log($"EditProfile: Dados do usuário carregados: Nome={user.nome}, Idade={user.idade}, Altura={user.altura}, Peso={user.peso}, Email={user.email}, IsConfirmed={user.is_confirmed}");
+
+                // Preenche os campos com os dados do usuário
                 editNomeInput.text = user.nome ?? "";
+                editIdadeInput.text = user.idade.ToString();
+                editAlturaInput.text = user.altura.ToString("F2");
+                editPesoInput.text = user.peso.ToString("F2");
+                editEmailInput.text = user.email ?? loggedInEmail;
+                editPasswordInput.text = "********";
+
+                // Força a atualização visual dos campos
                 editNomeInput.ForceLabelUpdate();
-                Debug.Log("Dados do usuário preenchidos nos campos com sucesso!");
-                UpdateFeedback("Perfil carregado com sucesso!", true);
+                editIdadeInput.ForceLabelUpdate();
+                editAlturaInput.ForceLabelUpdate();
+                editPesoInput.ForceLabelUpdate();
+                editEmailInput.ForceLabelUpdate();
+                editPasswordInput.ForceLabelUpdate();
+
+                Debug.Log("EditProfile: Dados do usuário preenchidos nos campos com sucesso!");
+                StartCoroutine(UpdateFeedback("Perfil carregado com sucesso!", true));
             }
             else
             {
-                Debug.LogWarning("Nenhum dado encontrado para o userId: " + loggedInUserId);
-                UpdateFeedback("Nenhum dado encontrado para o usuário.", false);
+                Debug.LogWarning($"EditProfile: Nenhum dado encontrado para o userId: {loggedInUserId}. Preenchendo com valores padrão.");
+                editEmailInput.text = loggedInEmail;
+                editPasswordInput.text = "********";
+                editNomeInput.text = "";
+                editIdadeInput.text = "0";
+                editAlturaInput.text = "0.00";
+                editPesoInput.text = "0.00";
+
+                editNomeInput.ForceLabelUpdate();
+                editIdadeInput.ForceLabelUpdate();
+                editAlturaInput.ForceLabelUpdate();
+                editPesoInput.ForceLabelUpdate();
+                editEmailInput.ForceLabelUpdate();
+                editPasswordInput.ForceLabelUpdate();
+
+                StartCoroutine(UpdateFeedback("Nenhum dado encontrado para o usuário. Preenchendo com dados padrão.", false));
             }
         });
     }
 
     public void SaveProfileChanges()
     {
+        Debug.Log("EditProfile: Botão 'Salvar' clicado.");
+
         if (string.IsNullOrEmpty(loggedInUserId) || string.IsNullOrEmpty(loggedInEmail))
         {
-            Debug.LogWarning("Erro ao salvar perfil: Dados do usuário logado ausentes!");
-            UpdateFeedback("Erro: Dados do usuário logado ausentes!", false);
+            Debug.LogWarning("EditProfile: Erro ao salvar perfil: Dados do usuário logado ausentes!");
+            StartCoroutine(UpdateFeedback("Erro: Dados do usuário logado ausentes!", false));
             return;
         }
 
+        // Validação dos campos
         if (string.IsNullOrWhiteSpace(editNomeInput.text) || string.IsNullOrWhiteSpace(editEmailInput.text))
         {
-            UpdateFeedback("Nome e e-mail são obrigatórios!", false);
+            StartCoroutine(UpdateFeedback("Nome e e-mail são obrigatórios!", false));
             return;
         }
 
-        UpdateFeedback("Salvando alterações...", true);
+        if (!int.TryParse(editIdadeInput.text, out int idade) || idade < 0)
+        {
+            StartCoroutine(UpdateFeedback("Idade deve ser um número inteiro não negativo!", false));
+            return;
+        }
+
+        if (!float.TryParse(editAlturaInput.text, out float altura) || altura < 0)
+        {
+            StartCoroutine(UpdateFeedback("Altura deve ser um número não negativo!", false));
+            return;
+        }
+
+        if (!float.TryParse(editPesoInput.text, out float peso) || peso < 0)
+        {
+            StartCoroutine(UpdateFeedback("Peso deve ser um número não negativo!", false));
+            return;
+        }
+
+        StartCoroutine(UpdateFeedback("Salvando alterações...", true));
 
         string nome = editNomeInput.text;
         string newEmail = editEmailInput.text;
@@ -191,17 +280,18 @@ public class EditProfile : MonoBehaviour
         {
             if (user != null)
             {
-                User updatedUser = new User(nome, newEmail);
-                updatedUser.is_confirmed = user.is_confirmed; // Preservar o estado de confirmação
-                DatabaseManager.SaveUser(loggedInUserId, updatedUser.nome, updatedUser.email);
+                // Cria um novo objeto User sem o atributo 'tipo'
+                User updatedUser = new User(nome, newEmail, idade, altura, peso, "");
+                updatedUser.is_confirmed = user.is_confirmed;
+                DatabaseManager.SaveUser(loggedInUserId, updatedUser.nome, updatedUser.email, updatedUser.idade, updatedUser.altura, updatedUser.peso, updatedUser.tipo);
 
-                UpdateFeedback("Dados do perfil salvos no banco de dados!", true);
+                StartCoroutine(UpdateFeedback("Dados do perfil salvos no banco de dados!", true));
 
                 var firebaseUser = FirebaseAuth.DefaultInstance.CurrentUser;
                 if (firebaseUser == null)
                 {
-                    Debug.LogError("Nenhum usuário autenticado encontrado!");
-                    UpdateFeedback("Erro: Nenhum usuário autenticado encontrado!", false);
+                    Debug.LogError("EditProfile: Nenhum usuário autenticado encontrado!");
+                    StartCoroutine(UpdateFeedback("Erro: Nenhum usuário autenticado encontrado!", false));
                     return;
                 }
 
@@ -211,15 +301,15 @@ public class EditProfile : MonoBehaviour
                     {
                         if (task.IsFaulted)
                         {
-                            Debug.LogError($"Erro ao enviar e-mail de verificação: {task.Exception}");
-                            UpdateFeedback($"Erro ao atualizar e-mail: {task.Exception.Message}", false);
+                            Debug.LogError($"EditProfile: Erro ao enviar e-mail de verificação: {task.Exception}");
+                            StartCoroutine(UpdateFeedback($"Erro ao atualizar e-mail: {task.Exception.Message}", false));
                             return;
                         }
 
                         if (task.IsCompleted)
                         {
-                            Debug.Log("E-mail de verificação enviado com sucesso! O usuário precisa confirmar o novo e-mail.");
-                            UpdateFeedback("Um e-mail de verificação foi enviado para o novo endereço. Por favor, confirme antes de continuar.", true);
+                            Debug.Log("EditProfile: E-mail de verificação enviado com sucesso!");
+                            StartCoroutine(UpdateFeedback("Um e-mail de verificação foi enviado para o novo endereço. Por favor, confirme antes de continuar.", true));
                             PlayerPrefs.SetString("loggedInUser", newEmail);
                             PlayerPrefs.Save();
                             loggedInEmail = newEmail;
@@ -227,68 +317,76 @@ public class EditProfile : MonoBehaviour
                     });
                 }
 
-                if (!string.IsNullOrWhiteSpace(newPassword))
+                if (!string.IsNullOrWhiteSpace(newPassword) && newPassword != "********")
                 {
                     firebaseUser.UpdatePasswordAsync(newPassword).ContinueWithOnMainThread(task =>
                     {
                         if (task.IsFaulted)
                         {
-                            Debug.LogError($"Erro ao atualizar senha: {task.Exception}");
-                            UpdateFeedback($"Erro ao atualizar senha: {task.Exception.Message}", false);
+                            Debug.LogError($"EditProfile: Erro ao atualizar senha: {task.Exception}");
+                            StartCoroutine(UpdateFeedback($"Erro ao atualizar senha: {task.Exception.Message}", false));
                             return;
                         }
 
                         if (task.IsCompleted)
                         {
-                            Debug.Log("Senha atualizada com sucesso no Firebase Authentication!");
-                            UpdateFeedback("Senha atualizada com sucesso!", true);
+                            Debug.Log("EditProfile: Senha atualizada com sucesso!");
+                            StartCoroutine(UpdateFeedback("Senha atualizada com sucesso!", true));
                         }
                     });
                 }
                 else
                 {
-                    UpdateFeedback("Dados do perfil atualizados com sucesso!", true);
+                    StartCoroutine(UpdateFeedback("Dados do perfil atualizados com sucesso!", true));
                 }
             }
             else
             {
-                Debug.LogError("Usuário não encontrado no banco de dados!");
-                UpdateFeedback("Erro: Usuário não encontrado no banco de dados!", false);
+                Debug.LogError("EditProfile: Usuário não encontrado no banco de dados!");
+                StartCoroutine(UpdateFeedback("Erro: Usuário não encontrado no banco de dados!", false));
             }
         });
     }
 
     public void Logout()
     {
-        Debug.Log("Iniciando logout do usuário...");
-        UpdateFeedback("Efetuando logout...", true);
-
+        StartCoroutine(UpdateFeedback("Efetuando logout...", true));
         FirebaseAuth.DefaultInstance.SignOut();
-        Debug.Log("Usuário deslogado do Firebase Authentication com sucesso.");
-        UpdateFeedback("Logout efetuado com sucesso!", true);
-
         PlayerPrefs.DeleteKey("loggedInUser");
         PlayerPrefs.DeleteKey("loggedInUserId");
         PlayerPrefs.Save();
-        Debug.Log("Dados do PlayerPrefs limpos.");
-
         SceneManager.LoadScene(2);
-        Debug.Log("Redirecionando para a cena de login (cena 2).");
     }
 
     public void CancelProfileEdit()
     {
-        UpdateFeedback("Cancelando edição de perfil...", true);
+        StartCoroutine(UpdateFeedback("Cancelando edição de perfil...", true));
         SceneManager.LoadScene(10);
     }
 
-    private void UpdateFeedback(string message, bool isSuccess)
+    public void DeleteAccount()
     {
-        if (feedbackText != null)
+        StartCoroutine(UpdateFeedback("Apagando conta...", true));
+        deleteAccountManager.DeleteUserAccount();
+    }
+
+    private IEnumerator UpdateFeedback(string message, bool isSuccess)
+    {
+        if (feedbackText == null || !isActive)
         {
-            feedbackText.text = message;
-            feedbackText.color = isSuccess ? Color.green : Color.red;
+            Debug.LogWarning("EditProfile: FeedbackText é null ou o script não está ativo. Cancelando UpdateFeedback.");
+            yield break;
         }
-        Debug.Log(message);
+
+        Debug.Log($"EditProfile: Exibindo feedback: {message} (isSuccess: {isSuccess})");
+        feedbackText.text = message;
+        feedbackText.color = isSuccess ? new Color(0f, 0.5f, 0f) : Color.red;
+        yield return new WaitForSeconds(4f);
+
+        if (feedbackText != null && isActive)
+        {
+            feedbackText.text = "";
+            Debug.Log("EditProfile: Feedback limpo após 4 segundos.");
+        }
     }
 }

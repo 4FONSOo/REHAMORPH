@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class LoginUI : MonoBehaviour
 {
@@ -9,46 +10,72 @@ public class LoginUI : MonoBehaviour
     public TMP_InputField passwordField;
     public Button loginButton;
     public Button goToRegisterButton;
-    public FireBaseAuth authManager;
     public TMP_Text feedbackText;
+    private FireBaseAuth fireBaseAuth;
+    private DatabaseManager dbManager;
+    private bool isActive = true;
 
     void Start()
     {
+        Debug.Log("Inicializando LoginUI...");
+
+        fireBaseAuth = FindObjectOfType<FireBaseAuth>();
+        dbManager = FindObjectOfType<DatabaseManager>();
+
         if (emailField == null)
         {
-            Debug.LogError("Campo 'Email Field' não atribuído no Inspector! Certifique-se de arrastar um TMP_InputField para este campo.");
+            Debug.LogError("Campo 'Email Field' não atribuído no Inspector!");
         }
         if (passwordField == null)
         {
-            Debug.LogError("Campo 'Password Field' não atribuído no Inspector! Certifique-se de arrastar um TMP_InputField para este campo.");
+            Debug.LogError("Campo 'Password Field' não atribuído no Inspector!");
         }
         if (loginButton == null)
         {
-            Debug.LogError("Campo 'Login Button' não atribuído no Inspector! Certifique-se de arrastar um Button para este campo.");
+            Debug.LogError("Campo 'Login Button' não atribuído no Inspector!");
         }
         if (goToRegisterButton == null)
         {
-            Debug.LogError("Campo 'Go To Register Button' não atribuído no Inspector! Certifique-se de arrastar um Button para este campo.");
-        }
-        if (authManager == null)
-        {
-            Debug.LogError("Campo 'Auth Manager' não atribuído no Inspector! Certifique-se de arrastar um GameObject com o componente AuthManager para este campo.");
+            Debug.LogError("Campo 'Go To Register Button' não atribuído no Inspector!");
         }
         if (feedbackText == null)
         {
-            Debug.LogError("Campo 'Feedback Text' não atribuído no Inspector! Certifique-se de arrastar um TMP_Text para este campo.");
+            Debug.LogError("Campo 'Feedback Text' não atribuído no Inspector!");
+        }
+        if (fireBaseAuth == null)
+        {
+            Debug.LogError("FireBaseAuth não encontrado na cena! Certifique-se de que foi instanciado na cena 0 e usa DontDestroyOnLoad.");
+            StartCoroutine(UpdateFeedback("Erro: FireBaseAuth não encontrado!", false));
+        }
+        if (dbManager == null)
+        {
+            Debug.LogError("DatabaseManager não encontrado na cena! Certifique-se de que foi instanciado na cena 0 e usa DontDestroyOnLoad.");
+            StartCoroutine(UpdateFeedback("Erro: DatabaseManager não encontrado!", false));
         }
 
-        if (emailField == null || passwordField == null || loginButton == null || goToRegisterButton == null || authManager == null || feedbackText == null)
+        if (emailField == null || passwordField == null || loginButton == null ||
+            goToRegisterButton == null || feedbackText == null || fireBaseAuth == null || dbManager == null)
         {
-            Debug.LogError("Um ou mais campos não estão atribuídos no Inspector! Inicialização interrompida.");
+            Debug.LogError("Um ou mais campos não estão atribuídos! Inicialização interrompida.");
+            if (loginButton != null)
+            {
+                loginButton.interactable = false;
+            }
+            if (goToRegisterButton != null)
+            {
+                goToRegisterButton.interactable = false;
+            }
             return;
         }
 
         ConfigureInputFields();
 
+        loginButton.onClick.RemoveAllListeners();
         loginButton.onClick.AddListener(OnLoginButtonClicked);
+        goToRegisterButton.onClick.RemoveAllListeners();
         goToRegisterButton.onClick.AddListener(OnGoToRegisterButtonClicked);
+
+        Debug.Log("Listeners dos botões configurados: LoginButton e GoToRegisterButton.");
     }
 
     private void ConfigureInputFields()
@@ -62,77 +89,81 @@ public class LoginUI : MonoBehaviour
 
     void OnLoginButtonClicked()
     {
+        Debug.Log("Botão 'Login' clicado.");
+
         if (string.IsNullOrWhiteSpace(emailField.text) || string.IsNullOrWhiteSpace(passwordField.text))
         {
-            UpdateFeedback("E-mail ou senha não preenchidos!", false);
+            StartCoroutine(UpdateFeedback("Campos obrigatórios não preenchidos!", false));
             return;
         }
 
         string email = emailField.text;
         string password = passwordField.text;
 
-        // Validação prévia do formato do e-mail
-        if (!IsEmailFormatValid(email))
-        {
-            UpdateFeedback("O e-mail está mal formatado! Por favor, corrija.", false);
-            return;
-        }
+        StartCoroutine(UpdateFeedback("Iniciando login...", true));
 
-        UpdateFeedback("Iniciando login...", true);
-
-        authManager.Login(email, password,
+        fireBaseAuth.Login(email, password,
             onSuccess: (userId) =>
             {
-                Debug.Log($"Login bem-sucedido! Redirecionando para a próxima cena. UserId: {userId}");
-                UpdateFeedback("Login realizado com sucesso!", true);
-                SceneManager.LoadScene(4);
+                dbManager.GetUser(userId, (user) =>
+                {
+                    if (user != null)
+                    {
+                        if (user.is_confirmed)
+                        {
+                            Debug.Log("Conta validada. Redirecionando para a próxima cena...");
+                            StartCoroutine(UpdateFeedback("Login bem-sucedido! Redirecionando...", true));
+                            SceneManager.LoadScene(4);
+                        }
+                        else
+                        {
+                            Debug.LogWarning("Conta não validada. Redirecionando para a cena de validação de token...");
+                            StartCoroutine(UpdateFeedback("Conta não validada. Por favor, valide sua conta.", false));
+                            SceneManager.LoadScene(12);
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogError("Usuário não encontrado no banco de dados!");
+                        StartCoroutine(UpdateFeedback("Erro: Usuário não encontrado no banco de dados!", false));
+                    }
+                });
             },
             onError: (error) =>
             {
                 Debug.LogWarning($"Erro ao fazer login: {error}");
-                if (error.Contains("The email address is badly formatted"))
-                {
-                    UpdateFeedback("O e-mail está mal formatado! Por favor, corrija.", false);
-                }
-                else
-                {
-                    UpdateFeedback("Essas credenciais não estão corretas!!", false);
-                }
+                StartCoroutine(UpdateFeedback($"Erro ao fazer login: {error}", false));
             });
     }
 
     void OnGoToRegisterButtonClicked()
     {
-        UpdateFeedback("A ir para a tela de registo...", true);
+        Debug.Log("Botão 'Ir para Registo' clicado.");
+        StartCoroutine(UpdateFeedback("A ir para a tela de registo...", true));
         SceneManager.LoadScene(3);
     }
 
-    private bool IsEmailFormatValid(string email)
+    void OnDestroy()
     {
-        // Verificação simples: deve conter "@" e um domínio com ponto (ex.: ".com")
-        if (!email.Contains("@") || !email.Contains("."))
-        {
-            return false;
-        }
-
-        // Verificar se há pelo menos um caractere antes do "@", entre o "@" e o ".", e após o "."
-        int atIndex = email.IndexOf("@");
-        int dotIndex = email.LastIndexOf(".");
-        if (atIndex <= 0 || dotIndex <= atIndex + 1 || dotIndex >= email.Length - 1)
-        {
-            return false;
-        }
-
-        return true;
+        isActive = false;
+        Debug.Log("LoginUI destruído.");
     }
 
-    private void UpdateFeedback(string message, bool isSuccess)
+    private IEnumerator UpdateFeedback(string message, bool isSuccess)
     {
-        if (feedbackText != null)
+        if (feedbackText == null || !isActive)
         {
-            feedbackText.text = message;
-            feedbackText.color = isSuccess ? Color.green : Color.red;
+            Debug.LogWarning("FeedbackText é null ou o script não está ativo. Cancelando UpdateFeedback.");
+            yield break;
         }
-        Debug.Log(message);
+
+        feedbackText.text = message;
+        feedbackText.color = isSuccess ? new Color(0f, 0.5f, 0f) : Color.red;
+        yield return new WaitForSeconds(3f);
+
+        if (feedbackText != null && isActive)
+        {
+            feedbackText.text = "";
+        }
     }
 }

@@ -2,14 +2,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using UnityEngine.SceneManagement;
 
-public class ScriptMenu : MonoBehaviour
+public class InitialSettingsMenu : MonoBehaviour
 {
     public TMP_Dropdown ResolutionDropdown;
     public TMP_Dropdown QualityDropdown; // Dropdown para qualidade
-    public Button editProfileButton; // Botão para ir para a cena de edição de perfil
-    public Button backButton;       // Botão para voltar ao menu principal
     private Resolution[] resolutions;
 
     void OnEnable()
@@ -59,22 +56,6 @@ public class ScriptMenu : MonoBehaviour
         {
             Debug.LogError("Dropdown de qualidade não foi atribuído!");
         }
-
-        // Configurar os botões
-        if (editProfileButton == null)
-        {
-            Debug.LogError("Botão 'Edit Profile Button' não atribuído no Inspector!");
-        }
-        else
-        {
-            editProfileButton.onClick.AddListener(GoToEditProfile);
-        }
-
-        if (backButton == null)
-        {
-            Debug.LogError("Botão 'Back Button' não atribuído no Inspector!");
-
-        }
     }
 
     public void SetResolution(int resolutionIndex)
@@ -91,11 +72,5 @@ public class ScriptMenu : MonoBehaviour
     public void SetFullScreen(bool isFullScreen)
     {
         Screen.fullScreen = isFullScreen;
-    }
-
-    void GoToEditProfile()
-    {
-        Debug.Log("Redirecionando para a cena de Edição de Perfil (cena 11).");
-        SceneManager.LoadScene(10); // Cena de Edição de Perfil
     }
 }

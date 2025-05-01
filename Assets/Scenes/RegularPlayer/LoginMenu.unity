@@ -1844,15 +1844,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a91aa011c0689c64cb0cfd3b892bf8c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inputFields:
-  - inputField: {fileID: 12202797}
-    placeholder: {fileID: 1255736397}
-    defaultText: Insere o teu e-mail...
-    isBlinking: 0
-  - inputField: {fileID: 609458667}
-    placeholder: {fileID: 51528653}
-    defaultText: Insere a tua palavra-passe...
-    isBlinking: 0
+  cursorTexts:
+  - {fileID: 1255736397}
+  - {fileID: 51528653}
+  blinkRate: 0.5
 --- !u!114 &663852378
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2413,8 +2408,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6abfb6a7b1d765a4b90274b0b230ac55, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  professionalSceneName: ProfessionalScene
-  patientSceneName: PatientScene
+  userSceneName: UserScene
   dbManager: {fileID: 1080774685}
 --- !u!114 &1080774687
 MonoBehaviour:
@@ -2458,7 +2452,6 @@ MonoBehaviour:
   passwordField: {fileID: 609458667}
   loginButton: {fileID: 310874120}
   goToRegisterButton: {fileID: 580467519}
-  authManager: {fileID: 1080774687}
   feedbackText: {fileID: 2101879975}
 --- !u!1 &1119909616
 GameObject:
